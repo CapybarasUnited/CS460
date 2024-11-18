@@ -45,6 +45,11 @@
         android:inputType="textPassword"
         android:layout_marginTop="8dp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="35dp"
+        android:layout_height="35dp"/>
+
     <!-- Sign In Button -->
     <Button
         android:id="@+id/buttonSignIn"
