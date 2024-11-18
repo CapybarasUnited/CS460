@@ -32,6 +32,8 @@ import java.util.HashMap;
 
 //TODO
 //add last name to items added to database and pref manager
+//use FirebaseHelper instead of in-class methods to store stuff in database
+
 
 public class SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;

@@ -19,13 +19,16 @@
         android:layout_marginTop="30dp"
         android:textAlignment="center"/>
 
-    <!-- Profile Image Placeholder -->
+    <!-- Profile Image Placeholder, This is unused as we will not store profile images
+
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:src="@android:drawable/ic_menu_camera"
         android:contentDescription="Profile Image" />
+
+        -->
 
     <!-- Email Input -->
     <EditText
@@ -48,7 +51,9 @@
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="35dp"
-        android:layout_height="35dp"/>
+        android:layout_height="35dp"
+        android:visibility="gone"
+        />
 
     <!-- Sign In Button -->
     <Button

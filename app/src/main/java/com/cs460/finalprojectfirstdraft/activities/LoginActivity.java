@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 //TODO
 //remove reference to profile image as we will not be using one
+//use FirebaseHelper instead of in-class methods to check stuff in database
 
 /**
  * Controller class for the sign in activity
