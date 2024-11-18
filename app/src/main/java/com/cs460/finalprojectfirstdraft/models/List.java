@@ -11,7 +11,8 @@ public class List extends Item{
     private ArrayList<Item> list;
     private int listID, parentListId;
     private String listName;
-    Color color;
+    private Color color;
+    private boolean isChecklist;
 
     /**
      * Constructor
@@ -20,11 +21,12 @@ public class List extends Item{
      * @param listName this lists name
      * @param color this lists color
      */
-    public List(int listID, int parentListId, String listName, Color color) {
+    public List(int listID, int parentListId, String listName, Color color, boolean isChecklist) {
         this.listID = listID;
         this.parentListId = parentListId;
         this.listName = listName;
         this.color = color;
+        this.isChecklist = isChecklist;
     }
 
     /**
@@ -89,5 +91,9 @@ public class List extends Item{
      */
     public Color getColor() {
         return color;
+    }
+
+    public boolean getIsChecklist() {
+        return isChecklist;
     }
 }
