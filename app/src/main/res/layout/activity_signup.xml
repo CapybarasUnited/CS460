@@ -17,6 +17,16 @@
         android:textColor="@color/button_blue"
         android:layout_gravity="start" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="36sp"
+        android:text="@string/sign_up"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp"/>
+
     <!-- First Name Input -->
     <EditText
         android:id="@+id/editTextFirstName"
@@ -70,5 +80,5 @@
         android:text="@string/sign_up"
         android:backgroundTint="@color/button_blue"
         android:textColor="@color/white"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="30dp" />
 </LinearLayout>
