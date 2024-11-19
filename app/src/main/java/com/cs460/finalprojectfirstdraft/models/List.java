@@ -13,6 +13,7 @@ public class List extends Item{
     private String listName;
     private Color color;
     private boolean isChecklist;
+    private boolean deleteWhenChecked;
 
     /**
      * Constructor
@@ -21,12 +22,13 @@ public class List extends Item{
      * @param listName this lists name
      * @param color this lists color
      */
-    public List(int listID, int parentListId, String listName, Color color, boolean isChecklist) {
+    public List(int listID, int parentListId, String listName, Color color, boolean isChecklist, boolean deleteWhenChecked) {
         this.listID = listID;
         this.parentListId = parentListId;
         this.listName = listName;
         this.color = color;
         this.isChecklist = isChecklist;
+        this.deleteWhenChecked = deleteWhenChecked;
     }
 
     /**
