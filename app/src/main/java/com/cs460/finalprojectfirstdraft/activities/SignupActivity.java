@@ -114,11 +114,7 @@ public class SignupActivity extends AppCompatActivity {
      * @return boolean true/false depending on the state of the elements
      */
     private boolean isValidSignUpDetails() {
-        if(encodeImage == null) {
-            showToast("Please add a profile image");
-            return false;
-        }
-        else if(binding.editTextFirstName.getText().toString().trim().isEmpty()) {
+        if(binding.editTextFirstName.getText().toString().trim().isEmpty()) {
             showToast("Please enter your first name");
             return false;
         }
