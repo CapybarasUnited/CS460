@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">FinalProjectFirstDraft</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
     <string name="email_hint">Email</string>
@@ -8,5 +9,14 @@
     <string name="last_name">Last Name</string>
     <string name="reenter_password">Re-enter Password</string>
     <string name="submit">Submit</string>
-    <string name="app_name">Ares List</string>
+    <string name="create_list">Create List</string>
+    <string name="delete_when_checked">Delete When Checked:</string>
+    <string name="checklist">Checklist</string>
+    <string name="type">Type:</string>
+    <string name="standard">Standard</string>
+    <string name="color">Color:</string>
+    <string name="name">Name:</string>
+    <string name="new_list">New List</string>
+    <string name="back_arrow">Back Arrow</string>
+    <string name="plus">+</string>
 </resources>
