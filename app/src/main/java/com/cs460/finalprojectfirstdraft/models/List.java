@@ -1,4 +1,4 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.models;
 
 import android.graphics.Color;
 
@@ -11,7 +11,9 @@ public class List extends Item{
     private ArrayList<Item> list;
     private int listID, parentListId;
     private String listName;
-    Color color;
+    private Color color;
+    private boolean isChecklist;
+    private boolean deleteWhenChecked;
 
     /**
      * Constructor
@@ -20,11 +22,13 @@ public class List extends Item{
      * @param listName this lists name
      * @param color this lists color
      */
-    public List(int listID, int parentListId, String listName, Color color) {
+    public List(int listID, int parentListId, String listName, Color color, boolean isChecklist, boolean deleteWhenChecked) {
         this.listID = listID;
         this.parentListId = parentListId;
         this.listName = listName;
         this.color = color;
+        this.isChecklist = isChecklist;
+        this.deleteWhenChecked = deleteWhenChecked;
     }
 
     /**
@@ -89,5 +93,9 @@ public class List extends Item{
      */
     public Color getColor() {
         return color;
+    }
+
+    public boolean getIsChecklist() {
+        return isChecklist;
     }
 }

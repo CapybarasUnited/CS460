@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "724191486891",
+    "project_id": "ares-list",
+    "storage_bucket": "ares-list.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724191486891:android:4146d061b4147e271ea8ee",
+        "android_client_info": {
+          "package_name": "com.cs460.finalprojectfirstdraft"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRYgDU2QEzyK_fKvF7GOqlrYPnxk3KQKg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
