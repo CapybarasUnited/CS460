@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -35,10 +36,14 @@ import java.util.HashMap;
 //use FirebaseHelper instead of in-class methods to store stuff in database
 
 
-public class SignupActivity extends AppCompatActivity {
+public class
+SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private String encodeImage;
     private PreferenceManager preferenceManager;
+
+    //FirebaseHelper instance
+    private FirebaseHelper firebaseHelper = new FirebaseHelper();
 
     /**
      * Initialization method
@@ -83,29 +88,38 @@ public class SignupActivity extends AppCompatActivity {
         //check loading
         loading(true);
 
-        //post to firestore
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        //prepare user data
         HashMap<String, String> user = new HashMap<>();
+
         user.put(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
         user.put(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
         user.put(Constants.KEY_EMAIL, binding.editTextEmail.getText().toString());
         user.put(Constants.KEY_PASSWORD, binding.editTextPassword.getText().toString());
 
-        database.collection(Constants.KEY_COLLECTION_USERS)
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    loading(false);
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
+        //use firebase helper to add user
+        firebaseHelper.addUser(user, task -> {
+            if (task.isSuccessful()) {
 
-                }).addOnFailureListener(exception -> {
-                    loading(false);
-                    Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                //save user shared preferences
+                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+                preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
+                preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
+
+                //navigate to main activity
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            } else {
+                //show error message
+                showToast("Sign up failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
+
+                //reload screen
+                showToast("Try again");
+                Intent intent = new Intent(SignupActivity.this, SignupActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //clear fields
+                startActivity(intent);
+            }
+        });
     }
 
     /**
