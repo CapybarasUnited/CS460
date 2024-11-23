@@ -1,33 +1,18 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.HashMap;
 
 //TODO
@@ -86,8 +71,8 @@ public class SignupActivity extends AppCompatActivity {
         //post to firestore
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String, String> user = new HashMap<>();
-        user.put(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-        user.put(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
+        user.put(Constants.KEY_FIRST_NAME, binding.editTextFirstName.getText().toString());
+        user.put(Constants.KEY_LAST_NAME, binding.editTextLastName.getText().toString());
         user.put(Constants.KEY_EMAIL, binding.editTextEmail.getText().toString());
         user.put(Constants.KEY_PASSWORD, binding.editTextPassword.getText().toString());
 
@@ -96,8 +81,8 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentReference -> {
                     loading(false);
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
+                    preferenceManager.putString(Constants.KEY_FIRST_NAME, binding.editTextFirstName.getText().toString());
+                    preferenceManager.putString(Constants.KEY_LAST_NAME, binding.editTextLastName.getText().toString());
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

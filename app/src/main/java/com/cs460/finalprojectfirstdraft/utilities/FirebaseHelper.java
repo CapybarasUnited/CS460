@@ -3,27 +3,31 @@ package com.cs460.finalprojectfirstdraft.utilities;
 
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FirebaseHelper {
     private FirebaseFirestore db;
 
     /**
-     * Constructor to initialize Firestore instance
+     * Constructor to initialize FireStore instance
      */
     public FirebaseHelper() {
-        //initialize Firestore
+        //initialize FireStore
         db = FirebaseFirestore.getInstance();
     }
 
     /**
      * Temporarily commented out to prevent errors (user class missing getUserId method)
-     * Adds new user to Firestore database
+     * Adds new user to FireStore database
      * Temporarily commented out to avoid errors
      * @param user: the user object contains fields like userId, userName, etc.
      * @param listener: A listener to handle success or failure after operation completes
