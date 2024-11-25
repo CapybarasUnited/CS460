@@ -6,11 +6,16 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
+import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -65,18 +70,31 @@ public class SignupActivity extends AppCompatActivity {
      * Create a new account given the data stored in the EditTexts and ImageView
      */
     private void signUp() {
-        //check loading
         loading(true);
 
-        //post to firestore
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        HashMap<String, String> user = new HashMap<>();
-        user.put(Constants.KEY_FIRST_NAME, binding.editTextFirstName.getText().toString());
-        user.put(Constants.KEY_LAST_NAME, binding.editTextLastName.getText().toString());
-        user.put(Constants.KEY_EMAIL, binding.editTextEmail.getText().toString());
-        user.put(Constants.KEY_PASSWORD, binding.editTextPassword.getText().toString());
+        if(isValidSignUpDetails()) {
+            User user = new User(binding.editTextFirstName.getText().toString(),
+                    binding.editTextLastName.getText().toString(),
+                    binding.editTextEmail.getText().toString(),
+                    binding.editTextPassword.getText().toString());
 
-        database.collection(Constants.KEY_COLLECTION_USERS)
+            FirebaseHelper.getInstance().createUser(user, new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    showToast("Sign-up successful!");
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showToast("sign-up failure!");
+                }
+            });
+        }
+
+        loading(false);
+
+        //old logic, keeping this here for reference.
+        /*database.collection(Constants.KEY_COLLECTION_USERS)
                 .add(user)
                 .addOnSuccessListener(documentReference -> {
                     loading(false);
@@ -90,7 +108,7 @@ public class SignupActivity extends AppCompatActivity {
                 }).addOnFailureListener(exception -> {
                     loading(false);
                     Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                });*/
     }
 
     /**

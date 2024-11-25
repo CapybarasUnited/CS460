@@ -5,8 +5,9 @@ package com.cs460.finalprojectfirstdraft.utilities;
  */
 public class Constants {
     public static final String
-            KEY_FIRST_NAME = "name",
-            KEY_LAST_NAME = "nameLast",
+
+            KEY_FIRST_NAME = "firstName",
+            KEY_LAST_NAME = "lastName",
             KEY_COLLECTION_USERS = "User",
             KEY_EMAIL = "email",
             KEY_PASSWORD = "password",

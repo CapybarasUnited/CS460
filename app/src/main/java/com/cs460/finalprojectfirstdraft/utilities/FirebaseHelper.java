@@ -1,20 +1,26 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
-
+import android.content.Intent;
+import com.cs460.finalprojectfirstdraft.activities.MainActivity;
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.util.Listener;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FirebaseHelper {
+    private static final FirebaseHelper firebaseHelper = new FirebaseHelper();
     private FirebaseFirestore db;
 
     /**
@@ -25,20 +31,60 @@ public class FirebaseHelper {
         db = FirebaseFirestore.getInstance();
     }
 
+    public static FirebaseHelper getInstance() {
+        return firebaseHelper;
+    }
+
     /**
-     * Temporarily commented out to prevent errors (user class missing getUserId method)
      * Adds new user to FireStore database
      * Temporarily commented out to avoid errors
      * @param user: the user object contains fields like userId, userName, etc.
-     * @param listener: A listener to handle success or failure after operation completes
      */
-    /** public void addUser(User user, OnCompleteListener<Void> listener) {
-        db.collection("User")
-                .document(user.getUserId()) // uses the userId as the document id
-                .set(user) //adds or updates the use document
-                .addOnCompleteListener(listener); //triggers the provides listener when operation completes
+    public void createUser(User user, OnSuccessListener successListener, OnFailureListener failureListener) {
+        //post to firestore
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        HashMap<String, String> map = new HashMap<>();
+        map.put(Constants.KEY_FIRST_NAME, user.getFirstName());
+        map.put(Constants.KEY_LAST_NAME, user.getLastName());
+        map.put(Constants.KEY_EMAIL, user.getEmail());
+        map.put(Constants.KEY_PASSWORD, user.getPassword());
 
-    }/*
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .add(map)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    public boolean userExists(String email, String password) {
+        AtomicBoolean returnBoolean = new AtomicBoolean(false);
+        db.collection(Constants.KEY_COLLECTION_USERS)
+                .whereEqualTo(Constants.KEY_EMAIL, email)
+                .whereEqualTo(Constants.KEY_PASSWORD, password)
+                .get()
+                .addOnCompleteListener(task -> {
+                    returnBoolean.set(true);
+                });
+        return returnBoolean.get();
+    }
+
+    public User getUser(String email, String password) {
+        AtomicReference<User> user = null;
+        db.collection(Constants.KEY_COLLECTION_USERS)
+                .whereEqualTo(Constants.KEY_EMAIL, email)
+                .whereEqualTo(Constants.KEY_PASSWORD, password)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful() && task.getResult() != null && !task.getResult().getDocuments().isEmpty()) {
+                        DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+
+                        user.set(new User(documentSnapshot.getString(Constants.KEY_EMAIL),
+                                documentSnapshot.getString(Constants.KEY_PASSWORD),
+                                documentSnapshot.getString(Constants.KEY_FIRST_NAME),
+                                documentSnapshot.getString(Constants.KEY_LAST_NAME)));
+                    }
+                });
+        return user.get();
+    }
 
     /**
      * Adds a new list to the database

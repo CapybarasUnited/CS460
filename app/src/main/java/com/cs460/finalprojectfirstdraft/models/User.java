@@ -1,22 +1,34 @@
 package com.cs460.finalprojectfirstdraft.models;
 
-import com.cs460.finalprojectfirstdraft.utilities.Constants;
-
-import java.util.HashMap;
-
 //Not really sure if this class is needed!
 public class User {
     private int userId;
-    private String first_name, last_name, email, password;
+    private String firstName, lastName, email, password;
 
-    public User(String first_name, String last_name, String email, String password) {
-        this.first_name = first_name;
-        this.last_name = last_name;
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
     }
 
     public int getUserId() {
         return userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 }
