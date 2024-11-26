@@ -25,10 +25,14 @@ import java.util.HashMap;
 //use FirebaseHelper instead of in-class methods to store stuff in database
 
 
-public class SignupActivity extends AppCompatActivity {
+public class
+SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private String encodeImage;
     private PreferenceManager preferenceManager;
+
+    //FirebaseHelper instance
+    private FirebaseHelper firebaseHelper = new FirebaseHelper();
 
     /**
      * Initialization method
@@ -72,43 +76,38 @@ public class SignupActivity extends AppCompatActivity {
     private void signUp() {
         loading(true);
 
-        if(isValidSignUpDetails()) {
+        //prepare user data
+        if (isValidSignUpDetails()) {
             User user = new User(binding.editTextFirstName.getText().toString(),
                     binding.editTextLastName.getText().toString(),
                     binding.editTextEmail.getText().toString(),
                     binding.editTextPassword.getText().toString());
 
-            FirebaseHelper.getInstance().createUser(user, new OnSuccessListener() {
-                @Override
-                public void onSuccess(Object o) {
-                    showToast("Sign-up successful!");
-                }
-            }, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    showToast("sign-up failure!");
-                }
-            });
-        }
+            //use firebase helper to add user
+            firebaseHelper.addUser(user, task -> {
+                if (task.isSuccessful()) {
 
-        loading(false);
+                    //save user shared preferences
+//                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+//                preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
+//                preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
 
-        //old logic, keeping this here for reference.
-        /*database.collection(Constants.KEY_COLLECTION_USERS)
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    loading(false);
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(Constants.KEY_FIRST_NAME, binding.editTextFirstName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_LAST_NAME, binding.editTextLastName.getText().toString());
+                    //navigate to main activity
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
+                } else {
+                    //show error message
+                    showToast("Sign up failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
 
-                }).addOnFailureListener(exception -> {
-                    loading(false);
-                    Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                });*/
+                    //reload screen
+                    showToast("Try again");
+                    Intent intent = new Intent(SignupActivity.this, SignupActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //clear fields
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     /**

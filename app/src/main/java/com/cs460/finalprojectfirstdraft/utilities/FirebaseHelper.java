@@ -8,9 +8,13 @@ import com.cs460.finalprojectfirstdraft.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.util.Listener;
 
@@ -35,26 +39,6 @@ public class FirebaseHelper {
         return firebaseHelper;
     }
 
-    /**
-     * Adds new user to FireStore database
-     * Temporarily commented out to avoid errors
-     * @param user: the user object contains fields like userId, userName, etc.
-     */
-    public void createUser(User user, OnSuccessListener successListener, OnFailureListener failureListener) {
-        //post to firestore
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        HashMap<String, String> map = new HashMap<>();
-        map.put(Constants.KEY_FIRST_NAME, user.getFirstName());
-        map.put(Constants.KEY_LAST_NAME, user.getLastName());
-        map.put(Constants.KEY_EMAIL, user.getEmail());
-        map.put(Constants.KEY_PASSWORD, user.getPassword());
-
-        database.collection(Constants.KEY_COLLECTION_USERS)
-                .add(map)
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
-    }
-
     public boolean userExists(String email, String password) {
         AtomicBoolean returnBoolean = new AtomicBoolean(false);
         db.collection(Constants.KEY_COLLECTION_USERS)
@@ -74,7 +58,7 @@ public class FirebaseHelper {
                 .whereEqualTo(Constants.KEY_PASSWORD, password)
                 .get()
                 .addOnCompleteListener(task -> {
-                    if(task.isSuccessful() && task.getResult() != null && !task.getResult().getDocuments().isEmpty()) {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().getDocuments().isEmpty()) {
                         DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
 
                         user.set(new User(documentSnapshot.getString(Constants.KEY_EMAIL),
@@ -84,6 +68,47 @@ public class FirebaseHelper {
                     }
                 });
         return user.get();
+    }
+
+    /**
+     * Adds new user to Firestore database
+     *
+     * @param user: map containing user data (keys:values)
+     * @param listener: triggered when operation completes; provides a
+     *                reference to new document created if successful
+     */
+     public void addUser(User user, OnCompleteListener<DocumentReference> listener) {
+         //extract emails from user map
+         HashMap<String, String> userHashMap = new HashMap<>();
+
+         userHashMap.put(Constants.KEY_FIRST_NAME, user.getFirstName());
+         userHashMap.put(Constants.KEY_LAST_NAME, user.getLastName());
+         userHashMap.put(Constants.KEY_EMAIL, user.getEmail());
+         userHashMap.put(Constants.KEY_PASSWORD, user.getPassword());
+         String email = userHashMap.get(Constants.KEY_EMAIL);
+
+         //check if email already exists
+         db.collection(Constants.KEY_COLLECTION_USERS)
+                .whereEqualTo(Constants.KEY_EMAIL, email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    //if query was successful and result is not null and query did not return a document
+                    if(task.isSuccessful() && task.getResult() != null && task.getResult().isEmpty()) {
+                        //email is unique proceed
+                        db.collection(Constants.KEY_COLLECTION_USERS)
+                                .add(userHashMap) //auto generate document id
+                                .addOnCompleteListener(listener);
+                    } else {
+                        //email already exists
+                        //use TaskCompletionSource<DocumentReference> to simulate the completion of a task
+                        TaskCompletionSource<DocumentReference> tcs = new TaskCompletionSource<>();
+                        //set exception on task
+                        tcs.setException(
+                                new FirebaseFirestoreException("Email already exists", FirebaseFirestoreException.Code.ALREADY_EXISTS)
+                        );
+                        listener.onComplete(tcs.getTask()); //invoke listener with task
+                    }
+                });
     }
 
     /**
