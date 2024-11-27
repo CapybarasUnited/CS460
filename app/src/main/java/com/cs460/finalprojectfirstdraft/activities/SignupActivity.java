@@ -1,34 +1,23 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
+import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.HashMap;
 
 //TODO
@@ -85,41 +74,40 @@ SignupActivity extends AppCompatActivity {
      * Create a new account given the data stored in the EditTexts and ImageView
      */
     private void signUp() {
-        //check loading
         loading(true);
 
         //prepare user data
-        HashMap<String, String> user = new HashMap<>();
+        if (isValidSignUpDetails()) {
+            User user = new User(binding.editTextFirstName.getText().toString(),
+                    binding.editTextLastName.getText().toString(),
+                    binding.editTextEmail.getText().toString(),
+                    binding.editTextPassword.getText().toString());
 
-        user.put(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-        user.put(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
-        user.put(Constants.KEY_EMAIL, binding.editTextEmail.getText().toString());
-        user.put(Constants.KEY_PASSWORD, binding.editTextPassword.getText().toString());
+            //use firebase helper to add user
+            firebaseHelper.addUser(user, task -> {
+                if (task.isSuccessful()) {
 
-        //use firebase helper to add user
-        firebaseHelper.addUser(user, task -> {
-            if (task.isSuccessful()) {
+                    //save user shared preferences
+//                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+//                preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
+//                preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
 
-                //save user shared preferences
-                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-                preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
+                    //navigate to main activity
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    //show error message
+                    showToast("Sign up failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
 
-                //navigate to main activity
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            } else {
-                //show error message
-                showToast("Sign up failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
-
-                //reload screen
-                showToast("Try again");
-                Intent intent = new Intent(SignupActivity.this, SignupActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //clear fields
-                startActivity(intent);
-            }
-        });
+                    //reload screen
+                    showToast("Try again");
+                    Intent intent = new Intent(SignupActivity.this, SignupActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //clear fields
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     /**

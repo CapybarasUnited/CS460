@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 

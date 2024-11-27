@@ -48,6 +48,10 @@ public class LoginActivity extends AppCompatActivity {
         binding.textViewSignUp.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignupActivity.class)));
 
+        binding.textViewForgotPassword.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), ForgotPasswordActivity.class));
+        });
+
         binding.buttonSignIn.setOnClickListener(v -> {
             if(isValidSignInDetails()) {
                 signIn();
@@ -90,8 +94,10 @@ public class LoginActivity extends AppCompatActivity {
                         DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
                         preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                         preferenceManager.putString(Constants.KEY_USER_ID, documentSnapshot.getId());
-                        preferenceManager.putString(Constants.KEY_NAME, documentSnapshot.getString(Constants.KEY_NAME));
+                        preferenceManager.putString(Constants.KEY_FIRST_NAME, documentSnapshot.getString(Constants.KEY_FIRST_NAME));
                         preferenceManager.putString(Constants.KEY_IMAGE, documentSnapshot.getString(Constants.KEY_IMAGE));
+                        preferenceManager.putString(Constants.KEY_EMAIL, documentSnapshot.getString(Constants.KEY_EMAIL));
+
 
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
