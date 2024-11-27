@@ -20,7 +20,7 @@
             android:name=".activities.SignupActivity"
             android:exported="false" />
         <activity
-            android:name=".NewListActivity"
+            android:name=".activities.NewListActivity"
             android:exported="false" />
         <activity
             android:name=".activities.LoginActivity"

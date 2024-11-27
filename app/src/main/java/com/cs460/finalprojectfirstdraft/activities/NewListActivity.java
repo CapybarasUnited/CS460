@@ -1,4 +1,4 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,7 +18,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
+import com.cs460.finalprojectfirstdraft.models.List;
 
 import java.lang.reflect.Array;
 
@@ -30,6 +32,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
     private String color;
 
     private String name;
+    private Boolean deleteWhenChecked;
     private Boolean typeSelected;
     private Boolean colorSelected;
 
@@ -47,6 +50,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         typeSelected = false;
         colorSelected = false;
         isChecklist = false;
+        deleteWhenChecked = false;
         setListeners();
     }
 
@@ -83,6 +87,18 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
             public void afterTextChanged(Editable editable) {
                 checkIfComplete();
             }
+        });
+
+        binding.layoutDeleteWhenChecked.setOnClickListener(view -> {
+            if(deleteWhenChecked){
+                deleteWhenChecked = false;
+            }else{
+                deleteWhenChecked = true;
+            }
+        });
+
+        binding.createListButton.setOnClickListener(view -> {
+            List list = new List(0, 0, name, color, isChecklist, deleteWhenChecked);
         });
     }
 
