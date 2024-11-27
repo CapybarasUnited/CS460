@@ -3,17 +3,20 @@ package com.cs460.finalprojectfirstdraft.models;
 import android.graphics.Color;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * List class used to contain info about this list and an ArrayList storing Items
  */
 public class List extends Item{
     private ArrayList<Item> list;
-    private int listID, parentListId;
+    private String listID; //parentListId;
+    private String parentListId;
     private String listName;
-    private Color color;
+    private int color;
     private boolean isChecklist;
     private boolean deleteWhenChecked;
+    private String userEmail;
 
     /**
      * Constructor
@@ -22,13 +25,14 @@ public class List extends Item{
      * @param listName this lists name
      * @param color this lists color
      */
-    public List(int listID, int parentListId, String listName, Color color, boolean isChecklist, boolean deleteWhenChecked) {
+    public List(String listID, String parentListId, String listName, int color, boolean isChecklist, boolean deleteWhenChecked, String userEmail) {
         this.listID = listID;
         this.parentListId = parentListId;
         this.listName = listName;
         this.color = color;
         this.isChecklist = isChecklist;
         this.deleteWhenChecked = deleteWhenChecked;
+        this.userEmail = userEmail;
     }
 
     /**
@@ -56,6 +60,14 @@ public class List extends Item{
     }
 
     /**
+     * merhod to set user email
+     * @param userEmail
+     */
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    /**
      * Get the size of this list
      * @return int List size
      */
@@ -75,7 +87,7 @@ public class List extends Item{
      * Set the color of this list
      * @param color Color new color of this list
      */
-    public void setColor(Color color) {
+    public void setColor(int color) {
         this.color = color;
     }
 
@@ -91,11 +103,37 @@ public class List extends Item{
      * Get the color of this list
      * @return Color of this list
      */
-    public Color getColor() {
+    public int getColor() {
         return color;
     }
+
+    /**
+     * getter for email
+     * @return email associated with the list
+     */
+    public String getUserEmail() { return userEmail; }
 
     public boolean getIsChecklist() {
         return isChecklist;
     }
+
+    /**
+     * method to convert list into a hashmap for firebase
+     * @return a hashmap with list fields
+     */
+    public HashMap<String, Object> toHashMap(){
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("listId", listID);
+        map.put("parentListId", parentListId);
+        map.put("listName", listName);
+        map.put("color", color);
+        map.put("isChecklist", isChecklist);
+        map.put("deleteWhenChecked", deleteWhenChecked);
+        map.put("userEmail", userEmail);
+
+    return  map;
+    }
 }
+
+
