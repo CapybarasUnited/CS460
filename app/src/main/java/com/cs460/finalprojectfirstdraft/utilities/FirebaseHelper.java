@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FirebaseHelper {
     private static final FirebaseHelper firebaseHelper = new FirebaseHelper();
-    private FirebaseFirestore db;
+    private static FirebaseFirestore db;
 
     /**
      * Constructor to initialize FireStore instance
@@ -117,7 +117,7 @@ public class FirebaseHelper {
      *                  color, and listType
      * @param listener :a listener to handle success or failure after operation completes
      */
-    public void addList(List list, OnCompleteListener<DocumentReference> listener) {
+    public static void addList(List list, OnCompleteListener<DocumentReference> listener) {
         //ensure that userEmail is not null or empty
         if (list.getUserEmail() == null || list.getUserEmail().isEmpty()) {
             //create a task completion source

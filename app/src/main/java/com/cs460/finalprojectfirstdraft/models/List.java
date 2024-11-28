@@ -13,7 +13,7 @@ public class List extends Item{
     private String listID; //parentListId;
     private String parentListId;
     private String listName;
-    private int color;
+    private String color;
     private boolean isChecklist;
     private boolean deleteWhenChecked;
     private String userEmail;
@@ -25,7 +25,7 @@ public class List extends Item{
      * @param listName this lists name
      * @param color this lists color
      */
-    public List(String listID, String parentListId, String listName, int color, boolean isChecklist, boolean deleteWhenChecked, String userEmail) {
+    public List(String listID, String parentListId, String listName, String color, boolean isChecklist, boolean deleteWhenChecked, String userEmail) {
         this.listID = listID;
         this.parentListId = parentListId;
         this.listName = listName;
@@ -87,7 +87,7 @@ public class List extends Item{
      * Set the color of this list
      * @param color Color new color of this list
      */
-    public void setColor(int color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
@@ -103,7 +103,7 @@ public class List extends Item{
      * Get the color of this list
      * @return Color of this list
      */
-    public int getColor() {
+    public String getColor() {
         return color;
     }
 

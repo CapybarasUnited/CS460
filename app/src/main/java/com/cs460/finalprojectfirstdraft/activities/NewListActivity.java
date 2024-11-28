@@ -21,6 +21,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
 import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.lang.reflect.Array;
 
@@ -98,7 +101,16 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         });
 
         binding.createListButton.setOnClickListener(view -> {
-            List list = new List(0, 0, name, color, isChecklist, deleteWhenChecked);
+
+            List list = new List(null, null, name, color, isChecklist, deleteWhenChecked, Constants.KEY_EMAIL);
+            FirebaseHelper.addList(list, task -> {
+                if(task.isSuccessful()){
+                    DocumentReference documentReference = task.getResult();
+                    documentReference.update("listId", documentReference.getId());
+                }else{
+                    showToast("Error communicating with database. Try again");
+                }
+            });
         });
     }
 
