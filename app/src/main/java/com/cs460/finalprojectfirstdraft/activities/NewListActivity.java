@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,14 +19,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
 import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.firebase.firestore.DocumentReference;
+import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.lang.reflect.Array;
+import java.util.HashMap;
 
 public class NewListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -59,7 +64,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
 
     private void setListeners() {
         binding.checkListButton.setOnClickListener(view -> {
-            if(!binding.checkListButton.isActivated()) {
+            if (!binding.checkListButton.isActivated()) {
                 typeSelected = true;
                 binding.checkListButton.setBackgroundResource(R.drawable.background_type_button_pressed_left);
                 binding.standardButton.setBackgroundResource(R.drawable.background_type_button_unpressed_right);
@@ -70,7 +75,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
 
         });
         binding.standardButton.setOnClickListener(view -> {
-            if(!binding.standardButton.isActivated()) {
+            if (!binding.standardButton.isActivated()) {
                 typeSelected = true;
                 binding.checkListButton.setBackgroundResource(R.drawable.background_type_button_unpressed_left);
                 binding.standardButton.setBackgroundResource(R.drawable.background_type_button_pressed_right);
@@ -82,9 +87,12 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
 
         binding.inputName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -93,26 +101,80 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         });
 
         binding.layoutDeleteWhenChecked.setOnClickListener(view -> {
-            if(deleteWhenChecked){
+            if (deleteWhenChecked) {
                 deleteWhenChecked = false;
-            }else{
+            } else {
                 deleteWhenChecked = true;
             }
         });
-
+        //create a list
         binding.createListButton.setOnClickListener(view -> {
+            addList();
+            deleteList(); //delete
+            updateList(); //delete
 
-            List list = new List(null, null, name, color, isChecklist, deleteWhenChecked, Constants.KEY_EMAIL);
-            FirebaseHelper.addList(list, task -> {
-                if(task.isSuccessful()){
-                    DocumentReference documentReference = task.getResult();
-                    documentReference.update("listId", documentReference.getId());
-                }else{
-                    showToast("Error communicating with database. Try again");
-                }
-            });
         });
     }
+
+
+    /**
+     * method to create a new list
+     */
+
+    private void addList() {
+        //get parent list id
+        String parentListId = null;
+
+        //create a new list
+        List list = new List(null, parentListId, name, color, isChecklist, deleteWhenChecked, Constants.KEY_EMAIL);
+
+        //call firebase helper add list method with list to add
+        FirebaseHelper.addList(list, task -> {
+            if (task.isSuccessful()) {
+                showToast("List was created successfully");
+                finish();
+            } else {
+                showToast("Error communicating with database. Try again");
+            }
+        });
+    }
+
+    /**
+     * hardcoded example -- delete
+     */
+    private void deleteList() {
+        //to delete call firestoreHelper deleteList method with listId/document id
+        FirebaseHelper.deleteList("Mvcz8EvoUWYbSvnUKmdY", task -> {
+            if (task.isSuccessful()) {
+                showToast("List was deleted successfully");
+                finish();
+            } else {
+                showToast("Error communicating with database. Try again");
+            }
+        });
+    }
+
+    /**
+     * hardcoded example -- delete
+     */
+    private void updateList() {
+        //create a hashmap for updates
+        HashMap<String, Object> hashMap = new HashMap<>();
+
+        //put field name and new value for the update, ex: changing list name to Books
+        hashMap.put("listName", "Books");
+        //call firebaseHelper updateList method
+        FirebaseHelper.updateList("Ux6dlJ5hiUpW9SO757tf", hashMap, task -> {
+            if (task.isSuccessful()) {
+                showToast("List was updated successfully");
+                finish();
+            } else {
+                showToast("Error communicating with database. Try again");
+            }
+        });
+    }
+
+
 
     private void checkIfComplete() {
         if(typeSelected && colorSelected && !binding.inputName.getText().toString().isEmpty()){

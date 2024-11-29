@@ -1,6 +1,8 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
 import android.content.Intent;
+import android.util.Log;
+
 import com.cs460.finalprojectfirstdraft.activities.MainActivity;
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.List;
@@ -10,6 +12,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -18,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.util.Listener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -99,14 +103,7 @@ public class FirebaseHelper {
                                 .add(userHashMap) //auto generate document id
                                 .addOnCompleteListener(listener);
                     } else {
-                        //email already exists
-                        //use TaskCompletionSource<DocumentReference> to simulate the completion of a task
-                        TaskCompletionSource<DocumentReference> tcs = new TaskCompletionSource<>();
-                        //set exception on task
-                        tcs.setException(
-                                new FirebaseFirestoreException("Email already exists", FirebaseFirestoreException.Code.ALREADY_EXISTS)
-                        );
-                        listener.onComplete(tcs.getTask()); //invoke listener with task
+                        listener.onComplete(null);
                     }
                 });
     }
@@ -117,25 +114,29 @@ public class FirebaseHelper {
      *                  color, and listType
      * @param listener :a listener to handle success or failure after operation completes
      */
-    public static void addList(List list, OnCompleteListener<DocumentReference> listener) {
+    public static void addList(List list, OnCompleteListener<Void> listener) {
         //ensure that userEmail is not null or empty
         if (list.getUserEmail() == null || list.getUserEmail().isEmpty()) {
-            //create a task completion source
-            TaskCompletionSource<DocumentReference> tcs = new TaskCompletionSource<>();
-            //set exception to indicate the email is missing
-            tcs.setException(new FirebaseFirestoreException(
+            FirebaseFirestoreException exception = new FirebaseFirestoreException(
+                    //set exception to indicate the email is missing
                     "User email is missing for the list",
-                    FirebaseFirestoreException.Code.INVALID_ARGUMENT //specific firestore error code
-            ));
-            //pass the task with the exception to the listener so the caller can handle the failure
-            listener.onComplete(tcs.getTask());
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            ); //specific firestore error code
             //return early
             return;
         }
-        //if email is valid procees
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .add(list.toHashMap()) //convert List to HashMap and add to Firestore
-                .addOnCompleteListener(listener); //trigger the listener on completion
+        //create a reference to a document int the Lists collection
+        DocumentReference documentReference = db.collection(Constants.KEY_COLLECTION_LISTS).document();
+
+        //generate a new document id
+        String documentId= documentReference.getId();
+
+        //set the list id in the list object
+        list.setListId(documentId);
+
+        //add list to firestore
+        documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
+        .addOnCompleteListener(listener);
     }
 
     /**
@@ -144,7 +145,7 @@ public class FirebaseHelper {
      * @param updates: a map of fields and their new values to update in the document
      * @param listener: a listener to handle success or failure after operation completes
      */
-    public void updateList(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
+    public static void updateList(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
         db.collection("Lists")
                 .document(documentId) //point to specific document to update
                 .update(updates) // apply the updates
@@ -156,7 +157,7 @@ public class FirebaseHelper {
      * @param documentId: a unique id of the list document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void deleteList(String documentId, OnCompleteListener<Void> listener){
+    public static void deleteList(String documentId, OnCompleteListener<Void> listener){
         //use document id to find specific list
         db.collection("Lists")
                 .document(documentId) //point to a specific list document by its Id
@@ -186,32 +187,40 @@ public class FirebaseHelper {
                                                 .addOnCompleteListener(listener); //notify listener once complete
                                     } else {
                                         //if deleting sublist fails createTaskCompletionSource
-                                        TaskCompletionSource<Void> tcs = new TaskCompletionSource<>();
-                                        tcs.setException(sublistsTask.getException()); //set the exception
-                                        listener.onComplete(tcs.getTask()); //notify of failed operation
+                                        listener.onComplete(Tasks.forException(sublistsTask.getException())); //notify of failed operation
                                     }
                                 });
                     } else {
                         //if deleting entries fails createTaskCompletionSource
-                        TaskCompletionSource<Void> tcs = new TaskCompletionSource<>();
-                        tcs.setException(entriesTask.getException()); //set the exception
-                        listener.onComplete(tcs.getTask()); //notify of failed operation
+                        listener.onComplete(Tasks.forException(entriesTask.getException())); //notify of failed operation
                     }
                 });
     }
 
     /**
      *Retrieves all lists belonging to a user from database
-     * @param userId: unique Id of the user whose lists will be retrieved
+     * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public void retrieveList(int userId, OnCompleteListener<QuerySnapshot> listener) {
+    public static void retrieveAllLists(String userEmail, OnCompleteListener<QuerySnapshot> listener) {
         db.collection("Lists")
-                .whereEqualTo("userId", userId) //filter lists where the userId field matched the provided userId
-                .get() //retrieve matching documents
-                .addOnCompleteListener(listener); //trigger the provided listener when the operation completes
+                .whereEqualTo("userEmail", userEmail)
+                .get()
+                .addOnCompleteListener( task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+
+                    }
+                });
     }
 
+    /**
+     * Retrieve a specific list
+     * @param listId: of desired list
+     * @param listener A listener to handle success or failure after operation completes
+     */
+    public static void retrieveAList(String listId, OnCompleteListener<QuerySnapshot> listener){
+
+    }
     /**
      * Add a new entry to the database
      * @param entry : entry object contains fields userId, username and password
