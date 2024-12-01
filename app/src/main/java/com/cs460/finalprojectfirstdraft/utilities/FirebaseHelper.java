@@ -132,7 +132,7 @@ public class FirebaseHelper {
         String documentId= documentReference.getId();
 
         //set the list id in the list object
-        list.setListId(documentId);
+        list.setListID(documentId);
 
         //add list to firestore
         documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore

@@ -134,6 +134,14 @@ public class List extends Item{
 
     return  map;
     }
+
+    public String getListID() {
+        return listID;
+    }
+
+    public void setListID(String listID) {
+        this.listID = listID;
+    }
 }
 
 
