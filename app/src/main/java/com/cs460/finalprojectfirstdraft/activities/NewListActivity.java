@@ -27,7 +27,6 @@ import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.firebase.firestore.DocumentReference;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.lang.reflect.Array;
