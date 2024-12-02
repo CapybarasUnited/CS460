@@ -24,6 +24,7 @@ import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
 import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.firebase.firestore.DocumentReference;
 import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
@@ -126,7 +127,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         String parentListId = null;
 
         //create a new list
-        List list = new List(null, parentListId, name, color, isChecklist, deleteWhenChecked, Constants.KEY_EMAIL);
+        List list = new List(null, parentListId, name, color, isChecklist, deleteWhenChecked, CurrentUser.getCurrentUser().getEmail());
 
         //call firebase helper add list method with list to add
         FirebaseHelper.addList(list, task -> {
