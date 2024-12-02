@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cs460.finalprojectfirstdraft.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
+import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
     private List<ListItem> itemList;
+    private ActivityMainBinding binding;
 
     /**
      * Called when the activity is first created.
@@ -34,13 +38,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
+        binding.title.setText(newTitle);
 
         // Initialize the RecyclerView and populate it with data
         initializeRecyclerView();
 
         // Set up the Floating Action Button to navigate to NewListActivity
         setupFloatingActionButton();
+
     }
 
     /**
