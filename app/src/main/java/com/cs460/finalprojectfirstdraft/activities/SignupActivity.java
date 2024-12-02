@@ -30,8 +30,6 @@ public class
 SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private String encodeImage;
-    private PreferenceManager preferenceManager;
-
     //FirebaseHelper instance
     private FirebaseHelper firebaseHelper = new FirebaseHelper();
 
@@ -46,7 +44,6 @@ SignupActivity extends AppCompatActivity {
         binding = ActivitySignupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
-        preferenceManager = new PreferenceManager(getApplicationContext());
     }
 
     /**

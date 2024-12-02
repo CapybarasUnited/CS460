@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -27,7 +26,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginActivity extends AppCompatActivity {
 
     private com.cs460.finalprojectfirstdraft.databinding.ActivityLoginBinding binding;
-    private PreferenceManager preferenceManager;
 
     /**
      * Initialization method
@@ -39,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
 
         binding = com.cs460.finalprojectfirstdraft.databinding.ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        preferenceManager = new PreferenceManager(getApplicationContext());
         setListeners();
     }
 
