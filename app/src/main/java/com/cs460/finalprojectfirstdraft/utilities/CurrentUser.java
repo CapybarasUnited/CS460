@@ -7,7 +7,6 @@ public class CurrentUser {
     private static CurrentUser currentUser;
     private CurrentUser(User user) {
         this.user = user;
-        System.out.println("User created from database: " + user.getEmail());
     }
 
     private User getUser() {
@@ -17,8 +16,6 @@ public class CurrentUser {
         if (currentUser == null) {
             currentUser = new CurrentUser(user);
         }
-
-        printUserInfo();
     }
 
     public static User getCurrentUser() {
