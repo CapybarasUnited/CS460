@@ -1,4 +1,5 @@
 package com.cs460.finalprojectfirstdraft;
+
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import java.util.List;
 
 /**
  * Activity class for displaying a RecyclerView with a list of items.
+ * This class demonstrates the use of a RecyclerView to display a list of {@link ListItem} objects.
  */
 public class RecyclerViewActivity extends AppCompatActivity {
 
@@ -28,14 +30,22 @@ public class RecyclerViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
 
+        // Initialize the RecyclerView
+        initializeRecyclerView();
+    }
+
+    /**
+     * Initializes the RecyclerView by setting up its layout manager, adapter, and populating
+     * it with a list of sample data.
+     */
+    private void initializeRecyclerView() {
         recyclerView = findViewById(R.id.recyclerView);
 
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("Item 1"));
-        itemList.add(new ListItem("Item 2"));
-        itemList.add(new ListItem("Item 3"));
-        itemList.add(new ListItem("Item 4"));
+        itemList.add(new ListItem("To Do", "Task", null));
+        itemList.add(new ListItem("Shopping", "Shopping", null));
+        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // 34% progress
 
         // Set up the RecyclerView with the adapter
         adapter = new RecyclerViewAdapter(itemList);

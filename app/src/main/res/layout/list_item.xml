@@ -4,14 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:background="@color/itemBackground"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/itemTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Item Title"
+        android:text="List Item"
         android:textSize="16sp"
         android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/itemProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="34%"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
 </LinearLayout>
+
