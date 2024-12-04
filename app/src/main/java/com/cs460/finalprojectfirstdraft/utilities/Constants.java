@@ -14,6 +14,7 @@ public class Constants {
     //Collections
     public static final String KEY_COLLECTION_USERS = "User";
     public static final String KEY_COLLECTION_LISTS = "Lists";
+    public static final String KEY_COLLECTION_ENTRIES = "Entries";
 
     //List
     public static final String KEY_LIST_ID = "listId";
