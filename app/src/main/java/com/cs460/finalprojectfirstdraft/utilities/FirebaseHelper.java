@@ -1,27 +1,16 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
-import android.content.Intent;
-import android.util.Log;
-
-import com.cs460.finalprojectfirstdraft.activities.MainActivity;
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.util.Listener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -202,7 +191,7 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllLists(String userEmail, OnCompleteListener<QuerySnapshot> listener) {
+    public static void getAllLists(String userEmail, OnCompleteListener<QuerySnapshot> listener) {
         db.collection("Lists")
                 .whereEqualTo("userEmail", userEmail)
                 .get()
@@ -218,9 +207,21 @@ public class FirebaseHelper {
      * @param listId: of desired list
      * @param listener A listener to handle success or failure after operation completes
      */
-    public static void retrieveAList(String listId, OnCompleteListener<QuerySnapshot> listener){
+    public static void getList(String listId, OnCompleteListener<QuerySnapshot> listener){
 
     }
+
+    public static List getRootList() {
+        List returnList;
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
+                .get().addOnCompleteListener(task -> {
+                    
+                    task.getResult().getDocuments().get(0)
+                });
+    }
+
     /**
      * Add a new entry to the database
      * @param entry : entry object contains fields userId, username and password

@@ -12,11 +12,11 @@ import com.cs460.finalprojectfirstdraft.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
-import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
+import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * MainActivity serves as the home screen of the application, displaying a list of user-defined tasks
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
+    private ArrayList<ListItem> itemList;
     private ActivityMainBinding binding;
 
     /**
@@ -57,10 +57,16 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initializeRecyclerView() {
         // Reference the RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = binding.recyclerView;
 
         // Initialize the list and add some sample data
-        itemList = new ArrayList<>();
+        ArrayList lists = new ArrayList<List>();
+
+        List parentList = FirebaseHelper.getRootList();
+
+        lists.add(FirebaseHelper)
+
+        itemList = new ArrayList<ListItem>();
         itemList.add(new ListItem("To Do", "Task", null));
         itemList.add(new ListItem("Shopping", "Shopping", null));
         itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
