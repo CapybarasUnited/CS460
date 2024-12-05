@@ -1,4 +1,4 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.models;
 
 /**
  * Represents an item in a list, including details such as the title, type, and progress percentage.

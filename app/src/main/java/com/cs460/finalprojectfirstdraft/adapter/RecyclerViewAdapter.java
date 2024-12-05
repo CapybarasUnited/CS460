@@ -1,4 +1,4 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +8,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
+import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityRecyclerViewBinding;
+import com.cs460.finalprojectfirstdraft.models.Entry;
+import com.cs460.finalprojectfirstdraft.models.Item;
+import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.models.ListItem;
+
+import java.util.ArrayList;
 
 /**
  * RecyclerViewAdapter is responsible for binding data from a list of {@link ListItem} objects
@@ -16,15 +23,24 @@ import java.util.List;
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private List<ListItem> itemList;
+    private ArrayList<Item> items;
+    private ActivityRecyclerViewBinding binding;
 
     /**
      * Constructor for RecyclerViewAdapter.
      *
-     * @param itemList The list of {@link ListItem} objects to be displayed in the RecyclerView.
+     * @param items The list of {@link ListItem} objects to be displayed in the RecyclerView.
      */
-    public RecyclerViewAdapter(List<ListItem> itemList) {
-        this.itemList = itemList;
+    public RecyclerViewAdapter(ArrayList<Item> items) {
+        this.items = items;
+    }
+
+    public RecyclerViewAdapter() {
+
+    }
+
+    public void setItems(ArrayList<Item> items) {
+        this.items = items;
     }
 
     /**
@@ -51,36 +67,48 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ListItem item = itemList.get(position);
+        Item item = items.get(position);
 
-        // Set the title text for the list item
-        holder.titleTextView.setText(item.getTitle());
+        if(item.getClass() == Entry.class) {
 
-        // Show progress only if it's not null, otherwise hide the progress text view
-        if (item.getProgress() != null) {
-            holder.progressTextView.setVisibility(View.VISIBLE);
-            holder.progressTextView.setText(item.getProgress() + "%");
-        } else {
-            holder.progressTextView.setVisibility(View.GONE);
         }
 
-        // Set a background color dynamically based on the position
-        int backgroundColor;
-        switch (position % 3) {
-            case 0:
-                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.red); // Red background
-                break;
-            case 1:
-                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.orange); // Orange background
-                break;
-            case 2:
-                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.yellow); // Yellow background
-                break;
-            default:
-                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.defaultBackground);
+        if(item.getClass() == List.class) {
+            List list = (List) item;
+            holder.titleTextView.setText(list.getListName());
+
+            //get progress logic needs to reach into the list (if it is a checklist) and count the number of completed entries and divide by total entries and * 100 + "%"
+            // Show progress only if it's not null, otherwise hide the progress text view
+//            if (item.getProgress() != null) {
+//                holder.progressTextView.setVisibility(View.VISIBLE);
+//                holder.progressTextView.setText(item.getProgress() + "%");
+//            } else {
+//                holder.progressTextView.setVisibility(View.GONE);
+//            }
+
+            // Set a background color dynamically based on the position
+            int backgroundColor;
+            switch (position % 3) {
+                case 0:
+                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.red); // Red background
+                    break;
+                case 1:
+                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.orange); // Orange background
+                    break;
+                case 2:
+                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.yellow); // Yellow background
+                    break;
+                default:
+                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.defaultBackground);
+            }
+            holder.itemView.setBackgroundColor(backgroundColor);
         }
-        holder.itemView.setBackgroundColor(backgroundColor);
     }
+
+
+
+
+
 
     /**
      * Returns the total number of items in the adapter's data set.
@@ -89,7 +117,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return items.size();
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
 import com.cs460.finalprojectfirstdraft.models.Entry;
+import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -11,7 +12,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -216,8 +219,8 @@ public class FirebaseHelper {
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
-                .get().addOnCompleteListener(task -> {
-                    
+                .get()
+                .addOnCompleteListener(task -> {
                     DocumentSnapshot ds = task.getResult().getDocuments().get(0);
                     returnList.set(new List(
                             (String) ds.get(Constants.KEY_LIST_ID),
@@ -230,6 +233,39 @@ public class FirebaseHelper {
                             ));
                 });
         return returnList.get();
+    }
+
+    public static ArrayList<Item> getItemsWithParentListId(String id) {
+        ArrayList<Item> items = new ArrayList<>();
+
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new List(
+                                (String) ds.get(Constants.KEY_LIST_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_LIST_NAME),
+                                (String) ds.get(Constants.KEY_COLOR),
+                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                                (String) ds.get(Constants.KEY_USER_EMAIL)));
+                    }
+                });
+
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new Entry(
+                                Integer.parseInt((String) ds.get(Constants.KEY_ENTRY_ID)),
+                                Integer.parseInt((String) ds.get(Constants.KEY_PARENT_LIST_ID)),
+                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+                    }
+                });
+        return items;
     }
 
     /**

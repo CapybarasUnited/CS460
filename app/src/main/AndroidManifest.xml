@@ -15,7 +15,7 @@
         <activity
             android:name=".activities.ForgotPasswordActivity"
             android:exported="false" />
-        <activity android:name=".RecyclerViewActivity" />
+        <activity android:name=".activities.RecyclerViewActivity" />
         <activity
             android:name=".activities.SignupActivity"
             android:exported="false" />

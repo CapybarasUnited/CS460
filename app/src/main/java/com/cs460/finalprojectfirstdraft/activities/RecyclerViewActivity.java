@@ -1,10 +1,14 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.cs460.finalprojectfirstdraft.models.ListItem;
+import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,14 +45,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private void initializeRecyclerView() {
         recyclerView = findViewById(R.id.recyclerView);
 
-        // Initialize the list and add some sample data
-        itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // 34% progress
-
         // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(itemList);
+        adapter = new RecyclerViewAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
