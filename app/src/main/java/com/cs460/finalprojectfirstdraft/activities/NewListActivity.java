@@ -1,6 +1,5 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,29 +7,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
-import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.UserList;
-import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
-import com.google.firebase.firestore.DocumentReference;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
-import com.google.android.gms.tasks.OnCompleteListener;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 
 public class NewListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {

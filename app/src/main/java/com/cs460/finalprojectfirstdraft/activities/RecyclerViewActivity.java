@@ -1,10 +1,14 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.models.ListItem;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cs460.finalprojectfirstdraft.ListItem;
+import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
-import com.cs460.finalprojectfirstdraft.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

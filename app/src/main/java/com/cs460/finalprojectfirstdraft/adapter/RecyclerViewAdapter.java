@@ -1,4 +1,4 @@
-package com.cs460.finalprojectfirstdraft;
+package com.cs460.finalprojectfirstdraft.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.models.ListItem;
 
 import java.util.List;
 
