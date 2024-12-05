@@ -250,45 +250,40 @@ public class FirebaseHelper {
      * @param entry : entry object contains fields userId, username and password
      * @param listener: A listener to handle success or failure after operation completes
      */
-    //public void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
+    public void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
         //ensure that list is not null
-      //  if (listID == null || listID.isEmpty()) {
-        //    FirebaseFirestoreException exception = new FirebaseFirestoreException(
+        if (listID == null || listID.isEmpty()) {
+            FirebaseFirestoreException exception = new FirebaseFirestoreException(
                     //set exception to indicate the list id  is missing
-          //          "List id is missing for the list",
-            //        FirebaseFirestoreException.Code.INVALID_ARGUMENT
-            //);
-            //return;
-        //}
+                    "List id is missing for the list",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            );
+            return;
+        }
         //check if list exists
-        //db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
-          //  if(document.exists()) {
+        db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
+            if(document.exists()) {
                 //create a reference to the entries sub collection
-            //    CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
-                //        .document(listID)
-              //          .collection("Entry");
+                CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
+                        .document(listID)
+                        .collection("Entry");
                 //generate a new document id
-                //DocumentReference newEntryRef = entryCollections.document();
-                //String documentId= newEntryRef.getId();
+                DocumentReference newEntryRef = entryCollections.document();
+                String documentId= newEntryRef.getId();
 
                 //set the entry id in the entry object
-                //entry.setEntryId(documentId);
+                entry.setEntryId(documentId);
 
                 //add entry to entry subcollection
-                //newEntryRef.set(entry.toHashMap())
-                  //      .addOnCompleteListener(task -> {
-                    //        listener.onComplete(Tasks.forResult(null));
-                      //  });
-            //} else {
-              //  listener.onComplete(Tasks.forException(new Exception()));
-            //}
-        //});
-
-
-
-
-
-   // }
+                newEntryRef.set(entry.entryToHashMap())
+                        .addOnCompleteListener(task -> {
+                            listener.onComplete(Tasks.forResult(null));
+                        });
+            } else {
+                listener.onComplete(Tasks.forException(new Exception()));
+            }
+        });
+    }
 
     /**
      * Update existing entry in the database
@@ -320,11 +315,39 @@ public class FirebaseHelper {
      * @param listId: the id of the list whose entries will be retrieved
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void retrieveEntries(String listId, OnCompleteListener<QuerySnapshot> listener) {
-        db.collection("Entries")
-                .whereEqualTo("listId", listId) //filer entries by their list id
+    public void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
+        //ensure the list id is valid
+        if (listId == null || listId.isEmpty()) {
+            FirebaseFirestoreException exception = new FirebaseFirestoreException(
+                    "List ID is missing or invalis",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            );
+            listener.onComplete(Tasks.forException(exception));
+            return;
+        }
+
+        //reference entries subcollection under the specific list
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .document(listId)
+                .collection("Entry")
                 .get() //fetch entries
-                .addOnCompleteListener(listener);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        //create a list to store the retrieved enetries
+                        List<Entry> entries = new ArrayList<>();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            Entry entry = document.toObject(Entry.class);
+                            if(entry != null) {
+                                entries.add(entry);
+                            }
+                        }
+                        //notify the listener of the success
+                        listener.onComplete(Tasks.forResult(entries));
+                    } else {
+                        //notify listener of failure
+                        listener.onComplete(Tasks.forException(task.getException()));
+                    }
+                });
     }
 
 }

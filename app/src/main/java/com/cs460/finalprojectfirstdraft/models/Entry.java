@@ -1,12 +1,14 @@
 package com.cs460.finalprojectfirstdraft.models;
 
+import java.util.HashMap;
+
 /**
  * Entry class extends Item
  * This class represents a list entry, list entries do not contain entries or lists but do store text
  */
 public class Entry extends Item{
     private Boolean isChecked;
-    private int entryId, listId;
+    private String entryId, listId;
     private String entryContent;
 
     /**
@@ -15,10 +17,19 @@ public class Entry extends Item{
      * @param listId This entries parent list ID
      * @param entryContent String content of this entry
      */
-    public Entry(int entryId, int listId, String entryContent) {
+    public Entry(String entryId, String listId, String entryContent) {
+
         this.entryId = entryId;
         this.listId = listId;
         this.entryContent = entryContent;
+    }
+
+    /**
+     * set value of entry id
+     * @param entryId
+     */
+    public void setEntryId(String entryId) {
+        this.entryId = entryId;
     }
 
     /**
@@ -46,6 +57,19 @@ public class Entry extends Item{
         return isChecked;
     }
 
+    public HashMap<String, Object> entryToHashMap(){
+        //create a hashmap
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("entryId", entryId);
+        map.put("entryName", listId);
+        map.put("entryContent", entryContent);
+        map.put("isChecked", isChecked);
+
+        return map;
+
+    }
+
     /**
      * Get the contents of entryContent
      * @return String value entryContent
@@ -53,4 +77,6 @@ public class Entry extends Item{
     public String getEntryContent() {
         return entryContent;
     }
+
+
 }
