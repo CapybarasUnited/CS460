@@ -5,8 +5,9 @@ import android.util.Log;
 
 import com.cs460.finalprojectfirstdraft.activities.MainActivity;
 import com.cs460.finalprojectfirstdraft.models.Entry;
-import com.cs460.finalprojectfirstdraft.models.List;
+//import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
+import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -14,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,7 +24,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.util.Listener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,18 +85,18 @@ public class FirebaseHelper {
      * @param listener: triggered when operation completes; provides a
      *                reference to new document created if successful
      */
-     public void addUser(User user, OnCompleteListener<DocumentReference> listener) {
-         //extract emails from user map
-         HashMap<String, String> userHashMap = new HashMap<>();
+    public void addUser(User user, OnCompleteListener<DocumentReference> listener) {
+        //extract emails from user map
+        HashMap<String, String> userHashMap = new HashMap<>();
 
-         userHashMap.put(Constants.KEY_FIRST_NAME, user.getFirstName());
-         userHashMap.put(Constants.KEY_LAST_NAME, user.getLastName());
-         userHashMap.put(Constants.KEY_EMAIL, user.getEmail());
-         userHashMap.put(Constants.KEY_PASSWORD, user.getPassword());
-         String email = userHashMap.get(Constants.KEY_EMAIL);
+        userHashMap.put(Constants.KEY_FIRST_NAME, user.getFirstName());
+        userHashMap.put(Constants.KEY_LAST_NAME, user.getLastName());
+        userHashMap.put(Constants.KEY_EMAIL, user.getEmail());
+        userHashMap.put(Constants.KEY_PASSWORD, user.getPassword());
+        String email = userHashMap.get(Constants.KEY_EMAIL);
 
-         //check if email already exists
-         db.collection(Constants.KEY_COLLECTION_USERS)
+        //check if email already exists
+        db.collection(Constants.KEY_COLLECTION_USERS)
                 .whereEqualTo(Constants.KEY_EMAIL, email)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -114,7 +118,7 @@ public class FirebaseHelper {
      *                  color, and listType
      * @param listener :a listener to handle success or failure after operation completes
      */
-    public static void addList(List list, OnCompleteListener<Void> listener) {
+    public static void addList(UserList list, OnCompleteListener<Void> listener) {
         //ensure that userEmail is not null or empty
         if (list.getUserEmail() == null || list.getUserEmail().isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
@@ -132,11 +136,11 @@ public class FirebaseHelper {
         String documentId= documentReference.getId();
 
         //set the list id in the list object
-        list.setListID(documentId);
+        list.setListId(documentId);
 
         //add list to firestore
         documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
-        .addOnCompleteListener(listener);
+                .addOnCompleteListener(listener);
     }
 
     /**
@@ -202,57 +206,111 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllLists(String userEmail, OnCompleteListener<QuerySnapshot> listener) {
+    public static void retrieveAllLists(String userEmail, OnCompleteListener<List<UserList>> listener) {
+        //access the lists collection
         db.collection("Lists")
+                //filter by email
                 .whereEqualTo("userEmail", userEmail)
                 .get()
-                .addOnCompleteListener( task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-
+                //listener to handle the result of fetch operation
+                .addOnCompleteListener(task -> {
+                    //check if task is successful and result is not null
+                    if(task.isSuccessful() && task.getResult() != null) {
+                        //create an array list to hold retrieved UserList objects
+                        List<UserList> userLists = new ArrayList<>();
+                        //loop through each document in the result set
+                        for(DocumentSnapshot document : task.getResult()) {
+                            //covert document to list object
+                            UserList list = document.toObject(UserList.class);
+                            //ensure conversion was successful
+                            if (list != null) {
+                                userLists.add(list);//add List objects to the list
+                            }
+                        }
+                        //notify listener and pass the list of List objects
+                        listener.onComplete(Tasks.forResult(userLists));
+                    } else {
+                        //notify listener with exception
+                        listener.onComplete(Tasks.forException(task.getException()));
                     }
                 });
     }
 
     /**
      * Retrieve a specific list
-     * @param listId: of desired list
+     * @param listId: of desired individual list
      * @param listener A listener to handle success or failure after operation completes
      */
     public static void retrieveAList(String listId, OnCompleteListener<QuerySnapshot> listener){
 
     }
+
     /**
-     * Add a new entry to the database
+     * Add a new entry to a a list in the database
      * @param entry : entry object contains fields userId, username and password
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void addEntry(Entry entry, OnCompleteListener<DocumentReference> listener) {
-        db.collection("Entries")
-                .add(entry) //add entry as a new document
-                .addOnCompleteListener(listener);
-    }
+    //public void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
+        //ensure that list is not null
+      //  if (listID == null || listID.isEmpty()) {
+        //    FirebaseFirestoreException exception = new FirebaseFirestoreException(
+                    //set exception to indicate the list id  is missing
+          //          "List id is missing for the list",
+            //        FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            //);
+            //return;
+        //}
+        //check if list exists
+        //db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
+          //  if(document.exists()) {
+                //create a reference to the entries sub collection
+            //    CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
+                //        .document(listID)
+              //          .collection("Entry");
+                //generate a new document id
+                //DocumentReference newEntryRef = entryCollections.document();
+                //String documentId= newEntryRef.getId();
+
+                //set the entry id in the entry object
+                //entry.setEntryId(documentId);
+
+                //add entry to entry subcollection
+                //newEntryRef.set(entry.toHashMap())
+                  //      .addOnCompleteListener(task -> {
+                    //        listener.onComplete(Tasks.forResult(null));
+                      //  });
+            //} else {
+              //  listener.onComplete(Tasks.forException(new Exception()));
+            //}
+        //});
+
+
+
+
+
+   // }
 
     /**
      * Update existing entry in the database
-     * @param documentId: the id of the document to update
+     * @param entryID: the id of the document to update
      * @param updates: a map containing fields to update and their new values
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void updateEntry(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
+    public void updateEntry(String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
         db.collection("Entries")
-                .document(documentId) //find using document id
+                .document(entryID) //find using entry id / document id
                 .update(updates) //perform partial update
                 .addOnCompleteListener(listener);
     }
 
     /**
      * Delete an entry from the database
-     * @param documentId: the id of the document to delete
+     * @param entryID: the id of the document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void deleteEntry(String documentId, OnCompleteListener<Void> listener) {
+    public void deleteEntry(String entryID, OnCompleteListener<Void> listener) {
         db.collection("Entries")
-                .document(documentId) //find using document id
+                .document(entryID) //find using document id
                 .delete() //deletes document
                 .addOnCompleteListener(listener);
     }
