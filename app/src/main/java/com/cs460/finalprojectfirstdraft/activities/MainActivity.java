@@ -8,16 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
-import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
-import com.cs460.finalprojectfirstdraft.models.List;
-import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
-import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MainActivity serves as the home screen of the application, displaying a list of user-defined tasks
@@ -27,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private ArrayList<ListItem> itemsToAdd;
-    private ActivityMainBinding binding;
+    private List<ListItem> itemList;
 
     /**
      * Called when the activity is first created.
@@ -39,17 +34,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
-        binding.title.setText(newTitle);
+        setContentView(R.layout.activity_main);
 
         // Initialize the RecyclerView and populate it with data
         initializeRecyclerView();
 
         // Set up the Floating Action Button to navigate to NewListActivity
         setupFloatingActionButton();
-
     }
 
     /**
@@ -58,18 +49,30 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initializeRecyclerView() {
         // Reference the RecyclerView
-        recyclerView = binding.recyclerView;
+        recyclerView = findViewById(R.id.recyclerView);
 
         // Initialize the list and add some sample data
-        List currentRootList = FirebaseHelper.getRootList();
-        ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
+        itemList = new ArrayList<>();
+        itemList.add(new ListItem("To Do", "Task", null));
+        itemList.add(new ListItem("Shopping", "Shopping", null));
+        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
-//        itemList.add(new ListItem("To Do", "Task", null));
-//        itemList.add(new ListItem("Shopping", "Shopping", null));
-//        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
+        // Set up the RecyclerView with the adapter and click listener
+        adapter = new RecyclerViewAdapter(itemList, position -> {
+            ListItem clickedItem = itemList.get(position);
 
-        // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(items);
+            if (clickedItem.getType().equals("Task")) {
+                // Example: Navigate to another activity
+                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                intent.putExtra("itemTitle", clickedItem.getTitle());
+                startActivity(intent);
+            } else {
+                // Example: Mark an item as completed by updating its progress
+                clickedItem.setProgress(100);
+                adapter.notifyItemChanged(position);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
@@ -79,12 +82,9 @@ public class MainActivity extends AppCompatActivity {
      * when clicked.
      */
     private void setupFloatingActionButton() {
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Navigate to the NewListActivity
-                startActivity(new Intent(MainActivity.this, NewListActivity.class));
-            }
+        findViewById(R.id.fab).setOnClickListener(view -> {
+            // Navigate to the NewListActivity
+            startActivity(new Intent(MainActivity.this, NewListActivity.class));
         });
     }
 }

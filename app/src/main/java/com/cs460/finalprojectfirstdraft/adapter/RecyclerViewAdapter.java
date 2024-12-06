@@ -9,13 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.R;
-import com.cs460.finalprojectfirstdraft.databinding.ActivityRecyclerViewBinding;
-import com.cs460.finalprojectfirstdraft.models.Entry;
-import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * RecyclerViewAdapter is responsible for binding data from a list of {@link ListItem} objects
@@ -23,106 +19,85 @@ import java.util.ArrayList;
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private ArrayList<Item> items;
-    private ActivityRecyclerViewBinding binding;
+    private final List<ListItem> itemList;
+    private final OnItemClickListener listener;
+
+    /**
+     * Interface for item click callbacks.
+     */
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
 
     /**
      * Constructor for RecyclerViewAdapter.
      *
-     * @param items The list of {@link ListItem} objects to be displayed in the RecyclerView.
+     * @param itemList The list of {@link ListItem} objects to be displayed in the RecyclerView.
+     * @param listener The listener for handling item click events.
      */
-    public RecyclerViewAdapter(ArrayList<Item> items) {
-        this.items = items;
+    public RecyclerViewAdapter(List<ListItem> itemList, OnItemClickListener listener) {
+        this.itemList = itemList;
+        this.listener = listener;
     }
 
-    public RecyclerViewAdapter() {
-
-    }
-
-    public void setItems(ArrayList<Item> items) {
-        this.items = items;
-    }
-
-    /**
-     * Called when a new ViewHolder is created. This inflates the layout for a single list item.
-     *
-     * @param parent   The parent ViewGroup into which the new view will be added.
-     * @param viewType The type of the new view (unused in this implementation).
-     * @return A new {@link ViewHolder} that holds a view for a single list item.
-     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, listener);
     }
 
-    /**
-     * Called to bind data to the ViewHolder at a specific position.
-     *
-     * @param holder   The ViewHolder which should be updated to represent the contents
-     *                 of the item at the given position in the data set.
-     * @param position The position of the item within the adapter's data set.
-     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Item item = items.get(position);
+        ListItem item = itemList.get(position);
 
-        if(item.getClass() == Entry.class) {
+        // Set the title
+        holder.titleTextView.setText(item.getTitle());
 
+        // Display progress if available
+        if (item.getProgress() != null) {
+            holder.progressTextView.setVisibility(View.VISIBLE);
+            holder.progressTextView.setText(item.getProgress() + "%");
+        } else {
+            holder.progressTextView.setVisibility(View.GONE);
         }
 
-        if(item.getClass() == List.class) {
-            List list = (List) item;
-            holder.titleTextView.setText(list.getListName());
+        // Set the background color based on the position
+        int backgroundColor;
+        switch (position % 3) {
+            case 0:
+                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.red);
+                break;
+            case 1:
+                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.orange);
+                break;
+            case 2:
+                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.yellow);
+                break;
+            default:
+                backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.defaultBackground);
+        }
+        holder.itemView.setBackgroundColor(backgroundColor);
 
-            //get progress logic needs to reach into the list (if it is a checklist) and count the number of completed entries and divide by total entries and * 100 + "%"
-            // Show progress only if it's not null, otherwise hide the progress text view
-//            if (item.getProgress() != null) {
-//                holder.progressTextView.setVisibility(View.VISIBLE);
-//                holder.progressTextView.setText(item.getProgress() + "%");
-//            } else {
-//                holder.progressTextView.setVisibility(View.GONE);
-//            }
-
-            // Set a background color dynamically based on the position
-            int backgroundColor;
-            switch (position % 3) {
-                case 0:
-                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.red); // Red background
-                    break;
-                case 1:
-                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.orange); // Orange background
-                    break;
-                case 2:
-                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.yellow); // Yellow background
-                    break;
-                default:
-                    backgroundColor = holder.itemView.getContext().getResources().getColor(R.color.defaultBackground);
+        // Set the click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                int currentPosition = holder.getAdapterPosition();
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(currentPosition);
+                }
             }
-            holder.itemView.setBackgroundColor(backgroundColor);
-        }
+        });
     }
 
-
-
-
-
-
-    /**
-     * Returns the total number of items in the adapter's data set.
-     *
-     * @return The number of items in the data set.
-     */
     @Override
     public int getItemCount() {
-        return items.size();
+        return itemList.size();
     }
 
     /**
      * ViewHolder class to hold the views for each list item.
-     * This class provides a reference to the views for each data item.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;  // Displays the title of the list item
@@ -132,11 +107,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
          * Constructor for ViewHolder.
          *
          * @param itemView The view for a single list item.
+         * @param listener The listener for item click events.
          */
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.itemTitle);
             progressTextView = itemView.findViewById(R.id.itemProgress);
+
+            // Click event handler
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(position);
+                    }
+                }
+            });
         }
     }
 }
