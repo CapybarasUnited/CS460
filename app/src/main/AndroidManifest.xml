@@ -16,6 +16,8 @@
             android:name=".activities.ForgotPasswordActivity"
             android:exported="false" />
         <activity android:name=".activities.RecyclerViewActivity" />
+        <activity android:name=".activities.ListActivity" />
+        <activity android:name=".activities.ChecklistActivity" />
         <activity
             android:name=".activities.SignupActivity"
             android:exported="false" />
@@ -25,6 +27,7 @@
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -57,8 +57,22 @@ public class MainActivity extends AppCompatActivity {
         itemList.add(new ListItem("Shopping", "Shopping", null));
         itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
-        // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(itemList);
+        // Set up the RecyclerView with the adapter and click listener
+        adapter = new RecyclerViewAdapter(itemList, position -> {
+            ListItem clickedItem = itemList.get(position);
+
+            if (clickedItem.getType().equals("Task")) {
+                // Example: Navigate to another activity
+                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                intent.putExtra("itemTitle", clickedItem.getTitle());
+                startActivity(intent);
+            } else {
+                // Example: Mark an item as completed by updating its progress
+                clickedItem.setProgress(100);
+                adapter.notifyItemChanged(position);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
@@ -68,12 +82,9 @@ public class MainActivity extends AppCompatActivity {
      * when clicked.
      */
     private void setupFloatingActionButton() {
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Navigate to the NewListActivity
-                startActivity(new Intent(MainActivity.this, NewListActivity.class));
-            }
+        findViewById(R.id.fab).setOnClickListener(view -> {
+            // Navigate to the NewListActivity
+            startActivity(new Intent(MainActivity.this, NewListActivity.class));
         });
     }
 }
