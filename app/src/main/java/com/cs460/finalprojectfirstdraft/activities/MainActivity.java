@@ -8,12 +8,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
+import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * MainActivity serves as the home screen of the application, displaying a list of user-defined tasks
@@ -23,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
+    private ArrayList<ListItem> itemsToAdd;
+    private ActivityMainBinding binding;
 
     /**
      * Called when the activity is first created.
@@ -34,13 +39,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
+        binding.title.setText(newTitle);
 
         // Initialize the RecyclerView and populate it with data
         initializeRecyclerView();
 
         // Set up the Floating Action Button to navigate to NewListActivity
         setupFloatingActionButton();
+
     }
 
     /**
@@ -49,16 +58,18 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initializeRecyclerView() {
         // Reference the RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = binding.recyclerView;
 
         // Initialize the list and add some sample data
-        itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
+        List currentRootList = FirebaseHelper.getRootList();
+        ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
+
+//        itemList.add(new ListItem("To Do", "Task", null));
+//        itemList.add(new ListItem("Shopping", "Shopping", null));
+//        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
         // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(itemList);
+        adapter = new RecyclerViewAdapter(items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
@@ -72,10 +83,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Navigate to the NewListActivity
-                Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
-                intent.putExtra("PARENT_LIST_ID", (String) null);
-                startActivity(intent);
-                finish();
+                startActivity(new Intent(MainActivity.this, NewListActivity.class));
             }
         });
     }

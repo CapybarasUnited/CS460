@@ -1,18 +1,12 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
-import android.content.Intent;
-import android.util.Log;
-
-import com.cs460.finalprojectfirstdraft.activities.MainActivity;
 import com.cs460.finalprojectfirstdraft.models.Entry;
+import com.cs460.finalprojectfirstdraft.models.Item;
+import com.cs460.finalprojectfirstdraft.models.List;
 //import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.firestore.CollectionReference;
@@ -21,11 +15,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.util.Listener;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.ListIterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,18 +79,18 @@ public class FirebaseHelper {
      * @param listener: triggered when operation completes; provides a
      *                reference to new document created if successful
      */
-    public void addUser(User user, OnCompleteListener<DocumentReference> listener) {
-        //extract emails from user map
-        HashMap<String, String> userHashMap = new HashMap<>();
+     public void addUser(User user, OnCompleteListener<DocumentReference> listener) {
+         //extract emails from user map
+         HashMap<String, String> userHashMap = new HashMap<>();
 
-        userHashMap.put(Constants.KEY_FIRST_NAME, user.getFirstName());
-        userHashMap.put(Constants.KEY_LAST_NAME, user.getLastName());
-        userHashMap.put(Constants.KEY_EMAIL, user.getEmail());
-        userHashMap.put(Constants.KEY_PASSWORD, user.getPassword());
-        String email = userHashMap.get(Constants.KEY_EMAIL);
+         userHashMap.put(Constants.KEY_FIRST_NAME, user.getFirstName());
+         userHashMap.put(Constants.KEY_LAST_NAME, user.getLastName());
+         userHashMap.put(Constants.KEY_EMAIL, user.getEmail());
+         userHashMap.put(Constants.KEY_PASSWORD, user.getPassword());
+         String email = userHashMap.get(Constants.KEY_EMAIL);
 
-        //check if email already exists
-        db.collection(Constants.KEY_COLLECTION_USERS)
+         //check if email already exists
+         db.collection(Constants.KEY_COLLECTION_USERS)
                 .whereEqualTo(Constants.KEY_EMAIL, email)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -136,11 +130,11 @@ public class FirebaseHelper {
         String documentId= documentReference.getId();
 
         //set the list id in the list object
-        list.setListId(documentId);
+        list.setListID(documentId);
 
         //add list to firestore
         documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
-                .addOnCompleteListener(listener);
+        .addOnCompleteListener(listener);
     }
 
     /**
@@ -150,7 +144,7 @@ public class FirebaseHelper {
      * @param listener: a listener to handle success or failure after operation completes
      */
     public static void updateList(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
-        db.collection("Lists")
+        db.collection(Constants.KEY_COLLECTION_LISTS)
                 .document(documentId) //point to specific document to update
                 .update(updates) // apply the updates
                 .addOnCompleteListener(listener); //trigger listener when operation completes
@@ -163,9 +157,9 @@ public class FirebaseHelper {
      */
     public static void deleteList(String documentId, OnCompleteListener<Void> listener){
         //use document id to find specific list
-        db.collection("Lists")
+        db.collection(Constants.KEY_COLLECTION_LISTS)
                 .document(documentId) //point to a specific list document by its Id
-                .collection("entries") //access the entries subcollection
+                .collection(Constants.KEY_COLLECTION_ENTRIES) //access the entries subcollection
                 .get()//retrieve all entries in the subcollection
                 .addOnCompleteListener(entriesTask -> { //listener to hamdle result of the entries query
                     if (entriesTask.isSuccessful()) {
@@ -175,8 +169,8 @@ public class FirebaseHelper {
                         }
 
                         //after deleting entries, delete any sublists
-                        db.collection("Lists")
-                                .whereEqualTo("parentListId", documentId)//find sublists that have the current list as their parent
+                        db.collection(Constants.KEY_COLLECTION_LISTS)
+                                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, documentId)//find sublists that have the current list as their parent
                                 .get()//retrieve all sublists
                                 .addOnCompleteListener(sublistsTask -> { //listener to hamdle result of the entries query
                                     if (sublistsTask.isSuccessful()) { //if query is successful
@@ -185,7 +179,7 @@ public class FirebaseHelper {
                                             sublist.getReference().delete();
                                         }
                                         //delete main list
-                                        db.collection("Lists")//reference to main list
+                                        db.collection(Constants.KEY_COLLECTION_LISTS)//reference to main list
                                                 .document(documentId) //reference to main list
                                                 .delete() //delete main document
                                                 .addOnCompleteListener(listener); //notify listener once complete
@@ -243,6 +237,59 @@ public class FirebaseHelper {
      */
     public static void retrieveAList(String listId, OnCompleteListener<QuerySnapshot> listener){
 
+    public static List getRootList() {
+        AtomicReference<List> returnList = new AtomicReference<>();
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
+                .get()
+                .addOnCompleteListener(task -> {
+                    DocumentSnapshot ds = task.getResult().getDocuments().get(0);
+                    returnList.set(new List(
+                            (String) ds.get(Constants.KEY_LIST_ID),
+                            (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                            (String) ds.get(Constants.KEY_LIST_NAME),
+                            (String) ds.get(Constants.KEY_COLOR),
+                            (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                            (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                            (String) ds.get(Constants.KEY_USER_EMAIL)
+                            ));
+                });
+        return returnList.get();
+    }
+
+
+    public static ArrayList<Item> getItemsWithParentListId(String id) {
+        ArrayList<Item> items = new ArrayList<>();
+
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new List(
+                                (String) ds.get(Constants.KEY_LIST_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_LIST_NAME),
+                                (String) ds.get(Constants.KEY_COLOR),
+                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                                (String) ds.get(Constants.KEY_USER_EMAIL)));
+                    }
+                });
+
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new Entry(
+                                Integer.parseInt((String) ds.get(Constants.KEY_ENTRY_ID)),
+                                Integer.parseInt((String) ds.get(Constants.KEY_PARENT_LIST_ID)),
+                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+                    }
+                });
+        return items;
     }
 
     /**
@@ -283,6 +330,10 @@ public class FirebaseHelper {
                 listener.onComplete(Tasks.forException(new Exception()));
             }
         });
+    public void addEntry(Entry entry, OnCompleteListener<DocumentReference> listener) {
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .add(entry) //add entry as a new document
+                .addOnCompleteListener(listener);
     }
 
     /**
@@ -294,6 +345,9 @@ public class FirebaseHelper {
     public void updateEntry(String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
         db.collection("Entries")
                 .document(entryID) //find using entry id / document id
+    public void updateEntry(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .document(documentId) //find using document id
                 .update(updates) //perform partial update
                 .addOnCompleteListener(listener);
     }
@@ -303,9 +357,9 @@ public class FirebaseHelper {
      * @param entryID: the id of the document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void deleteEntry(String entryID, OnCompleteListener<Void> listener) {
-        db.collection("Entries")
-                .document(entryID) //find using document id
+    public void deleteEntry(String documentId, OnCompleteListener<Void> listener) {
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .document(documentId) //find using document id
                 .delete() //deletes document
                 .addOnCompleteListener(listener);
     }
