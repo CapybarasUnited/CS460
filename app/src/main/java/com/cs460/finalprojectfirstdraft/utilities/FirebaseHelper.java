@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import kotlin.contracts.Returns;
+
 public class FirebaseHelper {
     private static final FirebaseHelper firebaseHelper = new FirebaseHelper();
     private static FirebaseFirestore db;
@@ -130,7 +132,7 @@ public class FirebaseHelper {
         String documentId= documentReference.getId();
 
         //set the list id in the list object
-        list.setListID(documentId);
+        list.setListId(documentId);
 
         //add list to firestore
         documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
@@ -230,22 +232,17 @@ public class FirebaseHelper {
                 });
     }
 
-    /**
-     * Retrieve a specific list
-     * @param listId: of desired individual list
-     * @param listener A listener to handle success or failure after operation completes
-     */
-    public static void retrieveAList(String listId, OnCompleteListener<QuerySnapshot> listener){
 
-    public static List getRootList() {
-        AtomicReference<List> returnList = new AtomicReference<>();
+
+    public static UserList getRootList() {
+        AtomicReference<UserList> returnList = new AtomicReference<>();
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
                 .get()
                 .addOnCompleteListener(task -> {
                     DocumentSnapshot ds = task.getResult().getDocuments().get(0);
-                    returnList.set(new List(
+                    returnList.set(new UserList(
                             (String) ds.get(Constants.KEY_LIST_ID),
                             (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                             (String) ds.get(Constants.KEY_LIST_NAME),
@@ -267,7 +264,7 @@ public class FirebaseHelper {
                 .get()
                 .addOnCompleteListener(task -> {
                     for (DocumentSnapshot ds : task.getResult().getDocuments()) {
-                        items.add(new List(
+                        items.add(new UserList(
                                 (String) ds.get(Constants.KEY_LIST_ID),
                                 (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                                 (String) ds.get(Constants.KEY_LIST_NAME),
@@ -330,10 +327,6 @@ public class FirebaseHelper {
                 listener.onComplete(Tasks.forException(new Exception()));
             }
         });
-    public void addEntry(Entry entry, OnCompleteListener<DocumentReference> listener) {
-        db.collection(Constants.KEY_COLLECTION_ENTRIES)
-                .add(entry) //add entry as a new document
-                .addOnCompleteListener(listener);
     }
 
     /**
@@ -342,14 +335,30 @@ public class FirebaseHelper {
      * @param updates: a map containing fields to update and their new values
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void updateEntry(String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
-        db.collection("Entries")
-                .document(entryID) //find using entry id / document id
-    public void updateEntry(String documentId, Map<String, Object> updates, OnCompleteListener<Void> listener) {
-        db.collection(Constants.KEY_COLLECTION_ENTRIES)
-                .document(documentId) //find using document id
+    public void updateEntry(String listID, String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
+        //validate listId and entryId
+        if (listID == null || listID.isEmpty()||entryID == null||entryID.isEmpty()) {
+            listener.onComplete(Tasks.forException(new FirebaseFirestoreException(
+                    "List ID or Entry ID is missing or invalid",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            )));
+            return;
+        }
+        //validate updates
+        if (updates == null || updates.isEmpty()) {
+            listener.onComplete(Tasks.forException(new FirebaseFirestoreException(
+                    "No updates provided",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            )));
+        }
+        //update entry
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .document(listID) //find using document id
+                .collection(Constants.KEY_COLLECTION_ENTRIES)
+                .document(entryID)
                 .update(updates) //perform partial update
-                .addOnCompleteListener(listener);
+                .addOnCompleteListener(listener)
+                .addOnFailureListener(e -> listener.onComplete(Tasks.forException(e)));
     }
 
     /**
@@ -357,11 +366,23 @@ public class FirebaseHelper {
      * @param entryID: the id of the document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void deleteEntry(String documentId, OnCompleteListener<Void> listener) {
-        db.collection(Constants.KEY_COLLECTION_ENTRIES)
-                .document(documentId) //find using document id
+    public void deleteEntry(String listID, String entryID, OnCompleteListener<Void> listener) {
+        //validate listId and entryId
+        if (listID == null || listID.isEmpty()||entryID == null||entryID.isEmpty()) {
+            listener.onComplete(Tasks.forException(new FirebaseFirestoreException(
+                    "List ID or Entry ID is missing or invalid",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            )));
+            return;
+        }
+        //delete entry
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .document(listID) //find using document id
+                .collection(Constants.KEY_COLLECTION_ENTRIES)
+                .document(entryID)
                 .delete() //deletes document
-                .addOnCompleteListener(listener);
+                .addOnCompleteListener(listener)
+                .addOnFailureListener(e -> listener.onComplete(Tasks.forException(e)));
     }
 
     /**
