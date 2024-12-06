@@ -9,11 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.R;
-import com.cs460.finalprojectfirstdraft.databinding.ActivityRecyclerViewBinding;
-import com.cs460.finalprojectfirstdraft.models.Entry;
-import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.List;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
+import com.cs460.finalprojectfirstdraft.models.UserList;
 
 import java.util.ArrayList;
 
@@ -23,15 +19,14 @@ import java.util.ArrayList;
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private ArrayList<Item> items;
-    private ActivityRecyclerViewBinding binding;
+    private ArrayList<UserList> items;
 
     /**
      * Constructor for RecyclerViewAdapter.
      *
      * @param items The list of {@link ListItem} objects to be displayed in the RecyclerView.
      */
-    public RecyclerViewAdapter(ArrayList<Item> items) {
+    public RecyclerViewAdapter(ArrayList<UserList> items) {
         this.items = items;
     }
 
@@ -39,7 +34,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
-    public void setItems(ArrayList<Item> items) {
+    public void setItems(ArrayList<UserList> items) {
         this.items = items;
     }
 
@@ -67,15 +62,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Item item = items.get(position);
-
-        if(item.getClass() == Entry.class) {
-
-        }
-
-        if(item.getClass() == List.class) {
-            List list = (List) item;
-            holder.titleTextView.setText(list.getListName());
+        UserList item = items.get(position);
 
             //get progress logic needs to reach into the list (if it is a checklist) and count the number of completed entries and divide by total entries and * 100 + "%"
             // Show progress only if it's not null, otherwise hide the progress text view
@@ -103,7 +90,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             }
             holder.itemView.setBackgroundColor(backgroundColor);
         }
-    }
 
 
 

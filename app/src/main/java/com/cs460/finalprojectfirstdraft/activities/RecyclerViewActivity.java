@@ -1,21 +1,16 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Activity class for displaying a RecyclerView with a list of items.
@@ -25,7 +20,6 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
     private HashMap<String, ArrayList<String>> checklistMap;
 
     /**

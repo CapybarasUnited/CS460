@@ -8,16 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
+import com.cs460.finalprojectfirstdraft.models.UserList;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
+    private ArrayList<UserList> itemList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,14 +28,12 @@ public class ListActivity extends AppCompatActivity {
 
         // Step 2: Initialize data for the RecyclerView
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("Shopping List", "List", null));
-        itemList.add(new ListItem("Groceries", "Entry", null));
-        itemList.add(new ListItem("Pixar Movies", "Entry", 34)); // 34% progress
+//        itemList.add(new UserList("Shopping List", "List", null));
+//        itemList.add(new UserList("Groceries", "Entry", null));
+//        itemList.add(new UserList("Pixar Movies", "Entry", 34)); // 34% progress
 
         // Step 3: Set up RecyclerView
-        adapter = new RecyclerViewAdapter(itemList, position -> {
-            // Handle item clicks here (e.g., open new activity or mark item as completed)
-        });
+        adapter = new RecyclerViewAdapter(itemList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this)); // Linear Layout
         recyclerView.setAdapter(adapter);
     }

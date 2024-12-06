@@ -2,20 +2,20 @@ package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
-import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private ArrayList<ListItem> itemsToAdd;
     private ActivityMainBinding binding;
 
     /**
@@ -60,15 +59,27 @@ public class MainActivity extends AppCompatActivity {
         // Reference the RecyclerView
         recyclerView = binding.recyclerView;
 
-        // Initialize the list and add some sample data
+         //Initialize the list and add some sample data
 
-        List currentRootList = FirebaseHelper.getRootList();
-        ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
+        ArrayList<UserList> userLists = new ArrayList<>();
 
-        // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(items);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+//        FirebaseHelper.retrieveAllLists(CurrentUser.getCurrentUser().getEmail(), new OnCompleteListener<List<UserList>>() {
+//            @Override
+//            public void onComplete(@NonNull Task<List<UserList>> task) {
+//                while(task.getResult().iterator().hasNext()) {
+//                    userLists.add(task.getResult().iterator().next());
+//                }
+//            }
+//        });
+//
+//        for (UserList ul : userLists.iterator()) {
+//            System.out.println(ul.toString());
+//        }
+//
+//         //Set up the RecyclerView with the adapter
+//        adapter = new RecyclerViewAdapter(userLists);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerView.setAdapter(adapter);
     }
 
     /**

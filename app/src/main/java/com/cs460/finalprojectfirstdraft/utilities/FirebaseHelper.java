@@ -2,8 +2,6 @@ package com.cs460.finalprojectfirstdraft.utilities;
 
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.List;
-//import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,7 +13,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -232,8 +229,6 @@ public class FirebaseHelper {
                 });
     }
 
-
-
     public static UserList getRootList() {
         AtomicReference<UserList> returnList = new AtomicReference<>();
         db.collection(Constants.KEY_COLLECTION_LISTS)
@@ -255,9 +250,8 @@ public class FirebaseHelper {
         return returnList.get();
     }
 
-
-    public static ArrayList<Item> getItemsWithParentListId(String id) {
-        ArrayList<Item> items = new ArrayList<>();
+    public static ArrayList<UserList> getListsWithParentListId(String id) {
+        ArrayList<UserList> items = new ArrayList<>();
 
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
@@ -272,18 +266,6 @@ public class FirebaseHelper {
                                 (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
                                 (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
                                 (String) ds.get(Constants.KEY_USER_EMAIL)));
-                    }
-                });
-
-        db.collection(Constants.KEY_COLLECTION_ENTRIES)
-                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
-                .get()
-                .addOnCompleteListener(task -> {
-                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
-                        items.add(new Entry(
-                                Integer.parseInt((String) ds.get(Constants.KEY_ENTRY_ID)),
-                                Integer.parseInt((String) ds.get(Constants.KEY_PARENT_LIST_ID)),
-                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
                     }
                 });
         return items;
