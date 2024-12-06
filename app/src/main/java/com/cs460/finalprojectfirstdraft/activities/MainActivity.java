@@ -72,7 +72,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Navigate to the NewListActivity
-                startActivity(new Intent(MainActivity.this, NewListActivity.class));
+                Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
+                intent.putExtra("PARENT_LIST_ID", (String) null);
+                startActivity(intent);
+                finish();
             }
         });
     }
