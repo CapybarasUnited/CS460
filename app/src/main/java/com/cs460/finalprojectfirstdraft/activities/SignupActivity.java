@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cs460.finalprojectfirstdraft.databinding.ActivitySignupBinding;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,8 +29,6 @@ public class
 SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private String encodeImage;
-    private PreferenceManager preferenceManager;
-
     //FirebaseHelper instance
     private FirebaseHelper firebaseHelper = new FirebaseHelper();
 
@@ -45,7 +43,6 @@ SignupActivity extends AppCompatActivity {
         binding = ActivitySignupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setListeners();
-        preferenceManager = new PreferenceManager(getApplicationContext());
     }
 
     /**
@@ -88,9 +85,7 @@ SignupActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
 
                     //save user shared preferences
-//                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-//                preferenceManager.putString(Constants.KEY_NAME, binding.editTextFirstName.getText().toString());
-//                preferenceManager.putString(Constants.KEY_NAME_LAST, binding.editTextLastName.getText().toString());
+                    CurrentUser.setCurrentUser(user);
 
                     //navigate to main activity
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);

@@ -10,8 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,7 +26,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginActivity extends AppCompatActivity {
 
     private com.cs460.finalprojectfirstdraft.databinding.ActivityLoginBinding binding;
-    private PreferenceManager preferenceManager;
 
     /**
      * Initialization method
@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
 
         binding = com.cs460.finalprojectfirstdraft.databinding.ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        preferenceManager = new PreferenceManager(getApplicationContext());
         setListeners();
     }
 
@@ -92,12 +91,11 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful() && task.getResult() != null && !task.getResult().getDocuments().isEmpty()) {
                         DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                        preferenceManager.putString(Constants.KEY_USER_ID, documentSnapshot.getId());
-                        preferenceManager.putString(Constants.KEY_FIRST_NAME, documentSnapshot.getString(Constants.KEY_FIRST_NAME));
-                        preferenceManager.putString(Constants.KEY_IMAGE, documentSnapshot.getString(Constants.KEY_IMAGE));
-                        preferenceManager.putString(Constants.KEY_EMAIL, documentSnapshot.getString(Constants.KEY_EMAIL));
-
+                        CurrentUser.setCurrentUser(new User(
+                                (String) documentSnapshot.get(Constants.KEY_FIRST_NAME),
+                                (String) documentSnapshot.get(Constants.KEY_LAST_NAME),
+                                (String) documentSnapshot.get(Constants.KEY_EMAIL),
+                                (String) documentSnapshot.get(Constants.KEY_PASSWORD)));
 
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

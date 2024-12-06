@@ -8,9 +8,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
+import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
+    private ArrayList<ListItem> itemsToAdd;
+    private ActivityMainBinding binding;
 
     /**
      * Called when the activity is first created.
@@ -34,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
+        binding.title.setText(newTitle);
 
         // Initialize the RecyclerView and populate it with data
         initializeRecyclerView();
@@ -49,30 +58,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initializeRecyclerView() {
         // Reference the RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = binding.recyclerView;
 
         // Initialize the list and add some sample data
-        itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
-        // Set up the RecyclerView with the adapter and click listener
-        adapter = new RecyclerViewAdapter(itemList, position -> {
-            ListItem clickedItem = itemList.get(position);
+        List currentRootList = FirebaseHelper.getRootList();
+        ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
 
-            if (clickedItem.getType().equals("Task")) {
-                // Example: Navigate to another activity
-                Intent intent = new Intent(MainActivity.this, ListActivity.class);
-                intent.putExtra("itemTitle", clickedItem.getTitle());
-                startActivity(intent);
-            } else {
-                // Example: Mark an item as completed by updating its progress
-                clickedItem.setProgress(100);
-                adapter.notifyItemChanged(position);
-            }
-        });
-
+        // Set up the RecyclerView with the adapter
+        adapter = new RecyclerViewAdapter(items);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }

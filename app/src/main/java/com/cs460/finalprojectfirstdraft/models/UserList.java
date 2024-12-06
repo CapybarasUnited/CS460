@@ -2,6 +2,8 @@ package com.cs460.finalprojectfirstdraft.models;
 
 import android.graphics.Color;
 
+import com.cs460.finalprojectfirstdraft.utilities.Constants;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,6 +19,7 @@ public class UserList extends Item{
     private boolean isChecklist;
     private boolean deleteWhenChecked;
     private String userEmail;
+    private double percentChecked = 0.0;
 
     /**
      * Constructor
@@ -137,13 +140,13 @@ public class UserList extends Item{
     public HashMap<String, Object> toHashMap(){
         HashMap<String, Object> map = new HashMap<>();
 
-        map.put("listId", listID);
-        map.put("parentListId", parentListId);
-        map.put("listName", listName);
-        map.put("color", color);
-        map.put("isChecklist", isChecklist);
-        map.put("deleteWhenChecked", deleteWhenChecked);
-        map.put("userEmail", userEmail);
+        map.put(Constants.KEY_LIST_ID, listID);
+        map.put(Constants.KEY_PARENT_LIST_ID, parentListId);
+        map.put(Constants.KEY_LIST_NAME, listName);
+        map.put(Constants.KEY_COLOR, color);
+        map.put(Constants.KEY_IS_CHECK_LIST, isChecklist);
+        map.put(Constants.KEY_DELETE_WHEN_CHECKED, deleteWhenChecked);
+        map.put(Constants.KEY_USER_EMAIL, userEmail);
 
         return  map;
     }

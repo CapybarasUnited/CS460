@@ -1,5 +1,6 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -7,16 +8,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
-import com.cs460.finalprojectfirstdraft.models.UserList;
+import com.cs460.finalprojectfirstdraft.models.List;
+import com.cs460.finalprojectfirstdraft.utilities.Constants;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.android.gms.tasks.OnCompleteListener;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 public class NewListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -96,7 +109,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         });
         //create a list
         binding.createListButton.setOnClickListener(view -> {
-
+            addList();
             deleteList(); //delete
             updateList(); //delete
 
@@ -104,6 +117,27 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
     }
 
 
+    /**
+     * method to create a new list
+     */
+
+    private void addList() {
+        //get parent list id
+        String parentListId = null;
+
+        //create a new list
+        List list = new List(null, parentListId, name, color, isChecklist, deleteWhenChecked, CurrentUser.getCurrentUser().getEmail());
+
+        //call firebase helper add list method with list to add
+        FirebaseHelper.addList(list, task -> {
+            if (task.isSuccessful()) {
+                showToast("List was created successfully");
+                finish();
+            } else {
+                showToast("Error communicating with database. Try again");
+            }
+        });
+    }
 
     /**
      * hardcoded example -- delete
@@ -136,23 +170,6 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
                 finish();
             } else {
                 showToast("Error communicating with database. Try again");
-            }
-        });
-    }
-    //skeleton method - delete
-    private void retrieveAllLists(){
-        String email = "email";
-
-        FirebaseHelper.retrieveAllLists(email, task -> {
-            if(task.isSuccessful()) {
-                java.util.List<UserList> userLists = task.getResult();
-                for (UserList list : userLists) {
-                    Log.d("retrieveAllLists: ", list.toString());
-                    //add each list to the recycler view
-
-                }
-            } else {
-                showToast("error");
             }
         });
     }
