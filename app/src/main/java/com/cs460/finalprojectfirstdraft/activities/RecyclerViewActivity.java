@@ -60,9 +60,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", null));
+        itemList.add(new ListItem("To Do", "Task", 0));
+        itemList.add(new ListItem("Shopping", "Shopping", 0));
+        itemList.add(new ListItem("Pixar Movies", "Movies", 0));
 
         // Inside RecyclerViewActivity
         adapter = new RecyclerViewAdapter(itemList, position -> {

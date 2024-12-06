@@ -29,8 +29,8 @@ public class ListActivity extends AppCompatActivity {
 
         // Step 2: Initialize data for the RecyclerView
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("Shopping List", "List", null));
-        itemList.add(new ListItem("Groceries", "Entry", null));
+        itemList.add(new ListItem("Shopping List", "List", 0));
+        itemList.add(new ListItem("Groceries", "Entry", 0));
         itemList.add(new ListItem("Pixar Movies", "Entry", 34)); // 34% progress
 
         // Step 3: Set up RecyclerView

@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
+        itemList.add(new ListItem("To Do", "Task", 0));
+        itemList.add(new ListItem("Shopping", "Shopping", 0));
         itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
         // Set up the RecyclerView with the adapter and click listener
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (clickedItem.getType().equals("Task")) {
                 // Example: Navigate to another activity
-                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                Intent intent = new Intent(MainActivity.this, ChecklistActivity.class);
                 intent.putExtra("itemTitle", clickedItem.getTitle());
                 startActivity(intent);
             } else {
