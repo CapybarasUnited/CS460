@@ -23,4 +23,6 @@
     <string name="reset_password">Reset Password</string>
     <string name="welcome_to_ares_list">Welcome to\nARES List!</string>
     <string name="please_enter_your_email_address_nand_new_password">Please enter your email address\nand new password:</string>
+    <string name="add_entries">Add Entries</string>
+    <string name="add_sublist">Add Sublist</string>
 </resources>

@@ -10,6 +10,8 @@
     <color name="orange">#FF9800</color>
     <color name="purple">#9900FF</color>
     <color name="button_blue">#2196F3</color>
+    <color name="hintText">#757575</color>
+    <color name="tempPanel">#B0B0B0</color>
     <color name="itemBackground">#FFFFFF</color>
     <color name="defaultBackground">#EEEEEE</color>
     <!-- Customize as needed -->

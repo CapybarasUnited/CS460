@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.ListActivity">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        android:backgroundTint="@color/button_blue"
+        android:contentDescription="Add New List"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+    <EditText
+        android:id="@+id/editTextAddEntry"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:hint="Type Entry names, Enter to Add"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/hintText"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fabAdd" />
+
+    <View
+        android:id="@+id/addPanel"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="5dp"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:foregroundGravity="center_horizontal"
+        android:background="@drawable/background_add_list_or_entry"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/fabAdd"
+        app:layout_constraintEnd_toEndOf="@+id/fabAdd"/>
+
+    <Button
+        android:id="@+id/btnAddEntry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_entries"
+        android:backgroundTint="@color/button_blue"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/addPanel"
+        app:layout_constraintBottom_toTopOf="@id/btnAddSublist"
+        app:layout_constraintEnd_toEndOf="@+id/addPanel"
+        app:layout_constraintStart_toStartOf="@+id/addPanel"/>
+
+    <Button
+        android:id="@+id/btnAddSublist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_sublist"
+        android:backgroundTint="@color/button_blue"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddEntry"
+        app:layout_constraintBottom_toBottomOf="@+id/addPanel"
+        app:layout_constraintEnd_toEndOf="@+id/addPanel"
+        app:layout_constraintStart_toStartOf="@+id/addPanel"/>
+
+    <TextView
+        android:id="@+id/textViewTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="25sp"/>
+
+    <TextView
+        android:id="@+id/textViewTest2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTest"
+        android:textSize="25sp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

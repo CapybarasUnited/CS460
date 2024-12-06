@@ -29,6 +29,7 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
     private ArrayAdapter adapter;
     private Boolean isChecklist;
     private String color;
+    private boolean isSublist;
 
     private String name;
     private Boolean deleteWhenChecked;
@@ -51,6 +52,14 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         colorSelected = false;
         isChecklist = false;
         deleteWhenChecked = false;
+        //get parent list id
+        Bundle extras = getIntent().getExtras();
+        if (extras == null){
+            parentListId = null;
+        }else {
+            parentListId = extras.getString("PARENT_LIST_ID");
+            isSublist = true;
+        }
         setListeners();
     }
 
@@ -116,14 +125,6 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
      * method to create a new list
      */
     private void addList() {
-        //get parent list id
-        Bundle extras = getIntent().getExtras();
-        if (extras == null){
-            parentListId = null;
-        }else {
-            parentListId = extras.getString("PARENT_LIST_ID");
-        }
-
         deleteWhenChecked = binding.checkboxDeleteWhenChecked.isChecked();
 
         //create a new list
@@ -133,7 +134,13 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         FirebaseHelper.addList(list, task -> {
             if (task.isSuccessful()) {
                 showToast("List was created successfully");
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                Intent intent;
+                if(isSublist){
+                    intent = new Intent(getApplicationContext(), ListActivity.class);
+                    intent.putExtra("LIST_ID", parentListId);
+                }else {
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                }
                 startActivity(intent);
                 finish();
             } else {
