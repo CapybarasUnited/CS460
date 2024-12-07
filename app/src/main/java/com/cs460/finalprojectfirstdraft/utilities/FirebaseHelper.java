@@ -2,7 +2,6 @@ package com.cs460.finalprojectfirstdraft.utilities;
 
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.List;
 //import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.models.UserList;
@@ -281,8 +280,8 @@ public class FirebaseHelper {
                 .addOnCompleteListener(task -> {
                     for (DocumentSnapshot ds : task.getResult().getDocuments()) {
                         items.add(new Entry(
-                                Integer.parseInt((String) ds.get(Constants.KEY_ENTRY_ID)),
-                                Integer.parseInt((String) ds.get(Constants.KEY_PARENT_LIST_ID)),
+                                (String) ds.get(Constants.KEY_ENTRY_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                                 (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
                     }
                 });
@@ -294,7 +293,7 @@ public class FirebaseHelper {
      * @param entry : entry object contains fields userId, username and password
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
+    public static void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
         //ensure that list is not null
         if (listID == null || listID.isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(

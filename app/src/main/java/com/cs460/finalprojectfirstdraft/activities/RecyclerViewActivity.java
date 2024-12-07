@@ -67,7 +67,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private void initializeRecyclerView() {
 
         // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter();
+        //adapter = new RecyclerViewAdapter(itemList, position -> {});
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
             ListItem clickedItem = itemList.get(position);
 
             if (checklistMap.containsKey(clickedItem.getTitle())) {
-                Intent intent = new Intent(RecyclerViewActivity.this, ChecklistActivity.class);
+                Intent intent = new Intent(RecyclerViewActivity.this, ListActivity.class);
                 intent.putExtra("listTitle", clickedItem.getTitle());
                 // Pass checklist items as an array
                 intent.putExtra("checklistItems", checklistMap.get(clickedItem.getTitle()).toArray(new String[0]));

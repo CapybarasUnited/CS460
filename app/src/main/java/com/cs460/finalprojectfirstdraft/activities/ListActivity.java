@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -16,9 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityListBinding;
+import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -27,7 +32,6 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
 
     private ActivityListBinding binding;
-    private PreferenceManager preferenceManager;
     private FirebaseHelper firebaseHelper;
     private Bundle extras;
     private String listID;
@@ -45,7 +49,6 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        preferenceManager = new PreferenceManager(getApplicationContext());
         setListeners();
 
         // Step 1: Bind RecyclerView
@@ -65,11 +68,9 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         extras = getIntent().getExtras();
-        if (extras != null) {
-            //listID = extras.getString("LIST_ID");
-            //isChecklist = extras.getBoolean("IS_CHECKLIST");
-            //deleteWhenChecked = extras.getBoolean("DELETE_WHEN_CHECKED");
-        }
+        listID = extras.getString("LIST_ID");
+        //isChecklist = extras.getBoolean("IS_CHECKLIST");
+        //deleteWhenChecked = extras.getBoolean("DELETE_WHEN_CHECKED");
         addingEntries = false;
         addPanelVisible = false;
     }
@@ -110,7 +111,7 @@ public class ListActivity extends AppCompatActivity {
 
         binding.btnAddSublist.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
-            //intent.putExtra("PARENT_LIST_ID", listID);
+            intent.putExtra("PARENT_LIST_ID", listID);
             startActivity(intent);
             finish();
         });
@@ -119,7 +120,13 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    //FirebaseHelper.addEntry(listID, binding.editTextAddEntry.getText().toString());
+                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString());
+                    FirebaseHelper.addEntry(entry, listID, new OnCompleteListener<DocumentReference>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                            showToast("Entry Added");
+                        }
+                    });
                     //(add entry to recyclerview)
                     binding.editTextAddEntry.setText(null);
                     return true;
@@ -128,6 +135,9 @@ public class ListActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void showToast(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
 

@@ -22,12 +22,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityNewListBinding;
-import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.cs460.finalprojectfirstdraft.utilities.Constants;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
-import com.cs460.finalprojectfirstdraft.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.android.gms.tasks.OnCompleteListener;
 
@@ -37,7 +35,6 @@ import java.util.HashMap;
 public class NewListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private ActivityNewListBinding binding;
-    private PreferenceManager preferenceManager;
     private ArrayAdapter adapter;
     private Boolean isChecklist;
     private String color;
@@ -55,7 +52,6 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         super.onCreate(savedInstanceState);
         binding = ActivityNewListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        preferenceManager = new PreferenceManager(getApplicationContext());
         adapter = ArrayAdapter.createFromResource(this, R.array.color_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerColorPicker.setAdapter(adapter);
@@ -66,10 +62,9 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
         deleteWhenChecked = false;
         //get parent list id
         Bundle extras = getIntent().getExtras();
-        if (extras == null){
-            parentListId = null;
-        }else {
-            parentListId = extras.getString("PARENT_LIST_ID");
+        parentListId = extras.getString("PARENT_LIST_ID");
+        if (parentListId != null) {
+            Log.d("Debug", "isSublist");
             isSublist = true;
         }
         setListeners();

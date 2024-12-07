@@ -13,7 +13,6 @@ import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
-import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
@@ -61,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = binding.recyclerView;
 
         // Initialize the list and add some sample data
-        List currentRootList = FirebaseHelper.getRootList();
-        ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
+        //List currentRootList = FirebaseHelper.getRootList();
+        //ArrayList<Item> items = FirebaseHelper.getItemsWithParentListId(currentRootList.getListID());
 
 //        itemsToAdd.add(new ListItem("To Do", "Task", null));
 //        itemsToAdd.add(new ListItem("Shopping", "Shopping", null));
@@ -78,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (clickedItem.getType().equals("Task")) {
                 // Example: Navigate to another activity
-                Intent intent = new Intent(MainActivity.this, ChecklistActivity.class);
-                intent.putExtra("itemTitle", clickedItem.getTitle());
+                Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+                intent.putExtra("LIST_ID", "1");
                 startActivity(intent);
             } else {
                 // Example: Mark an item as completed by updating its progress
