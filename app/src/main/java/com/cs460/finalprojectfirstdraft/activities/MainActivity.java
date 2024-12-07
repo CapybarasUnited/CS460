@@ -53,12 +53,26 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
+        itemList.add(new ListItem("To Do", "Task", 0));
+        itemList.add(new ListItem("Shopping", "Shopping", 0));
         itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
 
-        // Set up the RecyclerView with the adapter
-        adapter = new RecyclerViewAdapter(itemList);
+        // Set up the RecyclerView with the adapter and click listener
+        adapter = new RecyclerViewAdapter(itemList, position -> {
+            ListItem clickedItem = itemList.get(position);
+
+            if (clickedItem.getType().equals("Task")) {
+                // Example: Navigate to another activity
+                Intent intent = new Intent(MainActivity.this, ChecklistActivity.class);
+                intent.putExtra("itemTitle", clickedItem.getTitle());
+                startActivity(intent);
+            } else {
+                // Example: Mark an item as completed by updating its progress
+                clickedItem.setProgress(100);
+                adapter.notifyItemChanged(position);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
@@ -73,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Navigate to the NewListActivity
                 Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
-                intent.putExtra("PARENT_LIST_ID", (String) null);
                 startActivity(intent);
                 finish();
             }
