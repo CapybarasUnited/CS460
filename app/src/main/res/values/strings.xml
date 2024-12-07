@@ -25,4 +25,5 @@
     <string name="please_enter_your_email_address_nand_new_password">Please enter your email address\nand new password:</string>
     <string name="add_entries">Add Entries</string>
     <string name="add_sublist">Add Sublist</string>
+    <string name="settings">Settings</string>
 </resources>
