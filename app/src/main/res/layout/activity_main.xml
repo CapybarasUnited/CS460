@@ -38,44 +38,42 @@
             app:tint="@android:color/white" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layoutBody"
+
+    <!-- RecyclerView for User Lists -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        app:layout_constraintTop_toBottomOf="@id/layoutBody"
+        android:paddingBottom="8dp"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
 
-        <!-- RecyclerView for User Lists -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:scrollbars="vertical" />
+        />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            />
+    <TextView
+        android:id="@+id/textNoLists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_lists_created_yet_nadd_a_list_with_the_blue_button"
+        android:textSize="25sp"
+        android:textColor="@color/lightgray"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
-        <TextView
-            android:id="@+id/textNoLists"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/no_lists_created_yet_nadd_a_list_with_the_blue_button"
-            android:textSize="25sp"
-            android:textColor="@color/lightgray"
-            android:gravity="center"
-            android:visibility="gone"
-            />
-
-    </LinearLayout>
 
 
 

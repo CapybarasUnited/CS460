@@ -16,10 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.R;
+import com.cs460.finalprojectfirstdraft.adapter.ItemAdapter;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityListBinding;
+import com.cs460.finalprojectfirstdraft.listeners.ItemListener;
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
+import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
+import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,7 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements ItemListener {
 
     private ActivityListBinding binding;
     private FirebaseHelper firebaseHelper;
@@ -40,39 +44,43 @@ public class ListActivity extends AppCompatActivity {
     private boolean addingEntries;
     private boolean addPanelVisible;
 
-    private RecyclerView recyclerView;
-    private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
-
+    private ItemAdapter adapter;
+    private ArrayList<UserList> lists;
+    private ArrayList<Entry> entries;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        getListsAndEntries();
         setListeners();
 
-        // Step 1: Bind RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
 
-        // Step 2: Initialize data for the RecyclerView
-        itemList = new ArrayList<>();
-        itemList.add(new ListItem("Shopping List", "List", 0));
-        itemList.add(new ListItem("Groceries", "Entry", 0));
-        itemList.add(new ListItem("Pixar Movies", "Entry", 34)); // 34% progress
-
-        // Step 3: Set up RecyclerView
-        adapter = new RecyclerViewAdapter(itemList, position -> {
-            // Handle item clicks here (e.g., open new activity or mark item as completed)
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // Linear Layout
-        recyclerView.setAdapter(adapter);
 
         extras = getIntent().getExtras();
         listID = extras.getString("LIST_ID");
-        //isChecklist = extras.getBoolean("IS_CHECKLIST");
-        //deleteWhenChecked = extras.getBoolean("DELETE_WHEN_CHECKED");
         addingEntries = false;
         addPanelVisible = false;
+    }
+
+    private void getListsAndEntries() {
+        loading(true);
+
+        lists = new ArrayList<>();
+        entries = new ArrayList<>();
+
+        UserList list1 = new UserList(null, listID, "Favorites", "Yellow", false, false, "sam@sam.com");
+        lists.add(list1);
+        Entry entry1 = new Entry(null, listID, "Hunger Games");
+        Entry entry2 = new Entry(null, listID, "Lord of the Rings");
+        entries.add(entry1);
+        entries.add(entry2);
+        adapter = new ItemAdapter(lists, entries, this);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.setAdapter(adapter);
+        loading(false);
+        binding.recyclerView.setVisibility(View.VISIBLE);
     }
 
     private void setListeners() {
@@ -129,6 +137,9 @@ public class ListActivity extends AppCompatActivity {
                         }
                     });
                     //(add entry to recyclerview)
+                    entries.add(entry);
+                    adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                    binding.recyclerView.setAdapter(adapter);
                     binding.editTextAddEntry.setText(null);
                     return true;
                 }else{
@@ -140,6 +151,16 @@ public class ListActivity extends AppCompatActivity {
     private void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
+    private void loading(Boolean isLoading){
+        if(isLoading){
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }else{
+            binding.progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
 
+    @Override
+    public void onItemClicked(RecyclerViewItem recyclerViewItem) {
 
+    }
 }

@@ -125,6 +125,18 @@ public class NewListActivity extends AppCompatActivity implements AdapterView.On
             @Override
             public void afterTextChanged(Editable editable) {}
         });
+
+        binding.imgBackButton.setOnClickListener(view -> {
+            Intent intent;
+            if (parentListId != null){
+                intent = new Intent(getApplicationContext(), ListActivity.class);
+                intent.putExtra("LIST_ID", parentListId);
+            }else{
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+            }
+            startActivity(intent);
+            finish();
+        });
     }
 
 

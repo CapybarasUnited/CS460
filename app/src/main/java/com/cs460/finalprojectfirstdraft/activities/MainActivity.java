@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.adapter.ItemAdapter;
 import com.cs460.finalprojectfirstdraft.listeners.ItemListener;
+import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
  */
 public class MainActivity extends AppCompatActivity implements ItemListener {
 
-    private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private ArrayList<UserList> lists;
     private ActivityMainBinding binding;
@@ -44,30 +44,28 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Debug","1");
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        Log.d("Debug","2");
         firebaseHelper = new FirebaseHelper();
-        Log.d("Debug","3");
         setContentView(binding.getRoot());
-        Log.d("Debug","4");
         String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
-        Log.d("Debug","5");
         binding.title.setText(newTitle);
-        Log.d("Debug","6");
         getLists();
-        Log.d("Debug","7");
         setListeners();
-        Log.d("Debug","8");
     }
 
     private void getLists() {
-        lists = new ArrayList<>(firebaseHelper.getUserListsbyParentID(null));
-        Log.d("Debug","num lists pulled " + lists.size());
+        loading(true);
+        lists = new ArrayList<>();
+        UserList userList1 = new UserList("1","0", "Books", "Purple" , false, false, "sam@sam.com");
+        UserList userList2 = new UserList("1","0", "Other Stuff", "Red" , true, false, "sam@sam.com");
+        lists.add(userList1);
+        lists.add(userList2);
         if(!lists.isEmpty()){
-            adapter = new ItemAdapter(lists, null, this);
-            recyclerView.setAdapter(adapter);
-            recyclerView.setVisibility(View.VISIBLE);
+            adapter = new ItemAdapter(lists, new ArrayList<Entry>(), this);
+            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+            binding.recyclerView.setAdapter(adapter);
+            loading(false);
+            binding.recyclerView.setVisibility(View.VISIBLE);
         }else{
             showNoListMessage();
         }
@@ -81,23 +79,24 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("Debug", "fabClicked");
                 // Navigate to the NewListActivity
                 Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
                 intent.putExtra("PARENT_LIST_ID", (String) null);
-                Log.d("Debug","intent created");
                 startActivity(intent);
-                Log.d("Debug","Activity Started");
                 finish();
-                Log.d("Debug","finished");
             }
         });
     }
 
-    private void showNoListMessage(){
+    private void loading(Boolean isLoading){
+        if(isLoading){
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }else{
+            binding.progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
 
-        binding.recyclerView.setVisibility(View.GONE);
-        binding.progressBar.setVisibility(View.GONE);
+    private void showNoListMessage(){
         binding.textNoLists.setVisibility(View.VISIBLE);
     }
 
