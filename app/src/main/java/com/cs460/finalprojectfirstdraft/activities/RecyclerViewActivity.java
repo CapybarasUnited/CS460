@@ -8,9 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cs460.finalprojectfirstdraft.databinding.ActivityRecyclerViewBinding;
+import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,14 +23,22 @@ import java.util.List;
 public class RecyclerViewActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private ActivityRecyclerViewBinding binding;
     private RecyclerViewAdapter adapter;
     private List<ListItem> itemList;
     private HashMap<String, ArrayList<String>> checklistMap;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recycler_view);
+        binding = ActivityRecyclerViewBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initializeChecklistMap();
         initializeRecyclerView();
@@ -56,20 +65,22 @@ public class RecyclerViewActivity extends AppCompatActivity {
     }
 
     private void initializeRecyclerView() {
-        recyclerView = findViewById(R.id.recyclerView);
 
+        // Set up the RecyclerView with the adapter
+        //adapter = new RecyclerViewAdapter(itemList, position -> {});
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Initialize the list and add some sample data
         itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", null));
+        itemList.add(new ListItem("To Do", "Task", 0));
+        itemList.add(new ListItem("Shopping", "Shopping", 0));
+        itemList.add(new ListItem("Pixar Movies", "Movies", 0));
 
         // Inside RecyclerViewActivity
         adapter = new RecyclerViewAdapter(itemList, position -> {
             ListItem clickedItem = itemList.get(position);
 
             if (checklistMap.containsKey(clickedItem.getTitle())) {
-                Intent intent = new Intent(RecyclerViewActivity.this, ChecklistActivity.class);
+                Intent intent = new Intent(RecyclerViewActivity.this, ListActivity.class);
                 intent.putExtra("listTitle", clickedItem.getTitle());
                 // Pass checklist items as an array
                 intent.putExtra("checklistItems", checklistMap.get(clickedItem.getTitle()).toArray(new String[0]));
@@ -79,7 +90,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
             }
         });
 
-        recyclerView.setAdapter(adapter);
+        binding.recyclerView.setAdapter(adapter);
 
     }
 }

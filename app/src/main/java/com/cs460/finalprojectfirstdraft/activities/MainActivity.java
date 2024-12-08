@@ -2,28 +2,38 @@ package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cs460.finalprojectfirstdraft.adapter.ItemAdapter;
+import com.cs460.finalprojectfirstdraft.listeners.ItemListener;
+import com.cs460.finalprojectfirstdraft.models.Entry;
+import com.cs460.finalprojectfirstdraft.models.Item;
 import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
+import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
+import com.cs460.finalprojectfirstdraft.models.UserList;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
+import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * MainActivity serves as the home screen of the application, displaying a list of user-defined tasks
  * using a RecyclerView and providing navigation to create new lists.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ItemListener {
 
-    private RecyclerView recyclerView;
-    private RecyclerViewAdapter adapter;
-    private List<ListItem> itemList;
+    private ItemAdapter adapter;
+    private ArrayList<UserList> lists;
+    private ActivityMainBinding binding;
+    private FirebaseHelper firebaseHelper;
 
     /**
      * Called when the activity is first created.
@@ -34,57 +44,67 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Initialize the RecyclerView and populate it with data
-        initializeRecyclerView();
-
-        // Set up the Floating Action Button to navigate to NewListActivity
-        setupFloatingActionButton();
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        firebaseHelper = new FirebaseHelper();
+        setContentView(binding.getRoot());
+        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
+        binding.title.setText(newTitle);
+        getLists();
+        setListeners();
     }
 
-    /**
-     * Initializes the RecyclerView by setting up the adapter, layout manager,
-     * and populating it with sample data.
-     */
-    private void initializeRecyclerView() {
-        // Reference the RecyclerView
-        recyclerView = findViewById(R.id.recyclerView);
-
-        // Initialize the list and add some sample data
-        itemList = new ArrayList<>();
-        itemList.add(new ListItem("To Do", "Task", null));
-        itemList.add(new ListItem("Shopping", "Shopping", null));
-        itemList.add(new ListItem("Pixar Movies", "Movies", 34)); // Progress is 34%
-
-        // Set up the RecyclerView with the adapter and click listener
-        adapter = new RecyclerViewAdapter(itemList, position -> {
-            ListItem clickedItem = itemList.get(position);
-
-            if (clickedItem.getType().equals("Task")) {
-                // Example: Navigate to another activity
-                Intent intent = new Intent(MainActivity.this, ListActivity.class);
-                intent.putExtra("itemTitle", clickedItem.getTitle());
-                startActivity(intent);
-            } else {
-                // Example: Mark an item as completed by updating its progress
-                clickedItem.setProgress(100);
-                adapter.notifyItemChanged(position);
-            }
-        });
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+    private void getLists() {
+        loading(true);
+        lists = new ArrayList<>();
+        UserList userList1 = new UserList("1","0", "Books", "Purple" , false, false, "sam@sam.com");
+        UserList userList2 = new UserList("1","0", "Other Stuff", "Red" , true, false, "sam@sam.com");
+        lists.add(userList1);
+        lists.add(userList2);
+        if(!lists.isEmpty()){
+            adapter = new ItemAdapter(lists, new ArrayList<Entry>(), this);
+            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+            binding.recyclerView.setAdapter(adapter);
+            loading(false);
+            binding.recyclerView.setVisibility(View.VISIBLE);
+        }else{
+            showNoListMessage();
+        }
     }
 
     /**
      * Sets up the Floating Action Button (FAB) to navigate to the NewListActivity
      * when clicked.
      */
-    private void setupFloatingActionButton() {
-        findViewById(R.id.fab).setOnClickListener(view -> {
-            // Navigate to the NewListActivity
-            startActivity(new Intent(MainActivity.this, NewListActivity.class));
+    private void setListeners() {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navigate to the NewListActivity
+                Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
+                intent.putExtra("PARENT_LIST_ID", (String) null);
+                startActivity(intent);
+                finish();
+            }
         });
+    }
+
+    private void loading(Boolean isLoading){
+        if(isLoading){
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }else{
+            binding.progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void showNoListMessage(){
+        binding.textNoLists.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onItemClicked(RecyclerViewItem item) {
+        Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+        intent.putExtra("LIST_ID", item.listID);
+        startActivity(intent);
+        finish();
     }
 }

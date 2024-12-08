@@ -98,6 +98,7 @@ public class UserList extends Item{
     public void setListId(String listID) {this.listID = listID;
     }
     public String getListId() {return listID;}
+    public String getParentListId(){return parentListId;}
 
     /**
      * Set the color of this list
@@ -131,6 +132,9 @@ public class UserList extends Item{
 
     public boolean getIsChecklist() {
         return isChecklist;
+    }
+    public boolean getIsDelete() {
+        return deleteWhenChecked;
     }
 
     /**
