@@ -206,15 +206,15 @@ public class FirebaseHelper {
 
 
 
-    public static UserList getRootList() {
-        AtomicReference<UserList> returnList = new AtomicReference<>();
+    public ArrayList<UserList> getRootLists() {
+        ArrayList<UserList> returnList = new ArrayList<>();
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
                 .get()
                 .addOnCompleteListener(task -> {
                     DocumentSnapshot ds = task.getResult().getDocuments().get(0);
-                    returnList.set(new UserList(
+                    returnList.add(new UserList(
                             (String) ds.get(Constants.KEY_LIST_ID),
                             (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                             (String) ds.get(Constants.KEY_LIST_NAME),
@@ -224,7 +224,7 @@ public class FirebaseHelper {
                             (String) ds.get(Constants.KEY_USER_EMAIL)
                             ));
                 });
-        return returnList.get();
+        return returnList;
     }
 
 
@@ -259,6 +259,32 @@ public class FirebaseHelper {
                     }
                 });
         return items;
+    }
+
+    /**
+     *
+     * @param id List ID of the parent list
+     * @return Array list of UserLists with a specified parent id
+     */
+    public static ArrayList<UserList> getUserListsbyParentID(String id){
+        ArrayList<UserList> lists = new ArrayList<>();
+
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        lists.add(new UserList(
+                                (String) ds.get(Constants.KEY_LIST_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_LIST_NAME),
+                                (String) ds.get(Constants.KEY_COLOR),
+                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                                (String) ds.get(Constants.KEY_USER_EMAIL)));
+                    }
+                });
+        return lists;
     }
 
     /**

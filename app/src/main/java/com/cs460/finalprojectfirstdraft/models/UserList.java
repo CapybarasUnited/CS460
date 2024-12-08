@@ -132,6 +132,9 @@ public class UserList extends Item{
     public boolean getIsChecklist() {
         return isChecklist;
     }
+    public boolean getIsDelete() {
+        return getIsDelete();
+    }
 
     /**
      * method to convert list into a hashmap for firebase
