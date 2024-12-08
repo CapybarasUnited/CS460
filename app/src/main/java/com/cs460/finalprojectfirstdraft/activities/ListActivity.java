@@ -1,6 +1,7 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -70,10 +71,10 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         lists = new ArrayList<>();
         entries = new ArrayList<>();
 
-        UserList list1 = new UserList(null, listID, "Favorites", "Yellow", false, false, "sam@sam.com");
+        UserList list1 = new UserList("1", listID, "Favorites", "Yellow", false, false, "sam@sam.com");
         lists.add(list1);
-        Entry entry1 = new Entry(null, listID, "Hunger Games");
-        Entry entry2 = new Entry(null, listID, "Lord of the Rings");
+        Entry entry1 = new Entry("2", listID, "Hunger Games", true);
+        Entry entry2 = new Entry("3", listID, "Lord of the Rings", false);
         entries.add(entry1);
         entries.add(entry2);
         adapter = new ItemAdapter(lists, entries, this);
@@ -128,7 +129,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString());
+                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
                     FirebaseHelper.addEntry(entry, listID, task ->  {
                         if(task.isSuccessful()){
                             showToast("Entry Added");
@@ -161,6 +162,15 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
 
     @Override
     public void onItemClicked(RecyclerViewItem recyclerViewItem) {
-
+        if (!recyclerViewItem.isList) {
+            entries.get(recyclerViewItem.position).setChecked(!recyclerViewItem.isChecked);
+            adapter = new ItemAdapter(lists, entries, ListActivity.this);
+            binding.recyclerView.setAdapter(adapter);
+        }else{
+            Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+            intent.putExtra("LIST_ID", recyclerViewItem.id);
+            startActivity(intent);
+            finish();
+        }
     }
 }

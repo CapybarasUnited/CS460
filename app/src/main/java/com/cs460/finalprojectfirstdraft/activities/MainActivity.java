@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     @Override
     public void onItemClicked(RecyclerViewItem item) {
         Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-        intent.putExtra("LIST_ID", item.listID);
+        intent.putExtra("LIST_ID", item.id);
         startActivity(intent);
         finish();
     }

@@ -249,17 +249,7 @@ public class FirebaseHelper {
                     }
                 });
 
-        db.collection(Constants.KEY_COLLECTION_ENTRIES)
-                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
-                .get()
-                .addOnCompleteListener(task -> {
-                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
-                        items.add(new Entry(
-                                (String) ds.get(Constants.KEY_ENTRY_ID),
-                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
-                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
-                    }
-                });
+        
         return items;
     }
 

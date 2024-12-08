@@ -17,11 +17,12 @@ public class Entry extends Item{
      * @param listId This entries parent list ID
      * @param entryContent String content of this entry
      */
-    public Entry(String entryId, String listId, String entryContent) {
+    public Entry(String entryId, String listId, String entryContent, Boolean isChecked) {
 
         this.entryId = entryId;
         this.listId = listId;
         this.entryContent = entryContent;
+        this.isChecked = isChecked;
     }
 
     /**
@@ -79,4 +80,5 @@ public class Entry extends Item{
     }
 
 
+    public String getEntryID() {return entryId;}
 }
