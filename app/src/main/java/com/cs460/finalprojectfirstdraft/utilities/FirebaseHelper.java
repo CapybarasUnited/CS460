@@ -1,5 +1,7 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
+import android.util.Log;
+
 import com.cs460.finalprojectfirstdraft.models.Entry;
 import com.cs460.finalprojectfirstdraft.models.Item;
 //import com.cs460.finalprojectfirstdraft.models.List;
@@ -107,36 +109,7 @@ public class FirebaseHelper {
                 });
     }
 
-    /**
-     * Adds a new list to the database
-     * @param list :  a list object contains fields userId, listId, listName,
-     *                  color, and listType
-     * @param listener :a listener to handle success or failure after operation completes
-     */
-    public static void addList(UserList list, OnCompleteListener<Void> listener) {
-        //ensure that userEmail is not null or empty
-        if (list.getUserEmail() == null || list.getUserEmail().isEmpty()) {
-            FirebaseFirestoreException exception = new FirebaseFirestoreException(
-                    //set exception to indicate the email is missing
-                    "User email is missing for the list",
-                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
-            ); //specific firestore error code
-            //return early
-            return;
-        }
-        //create a reference to a document int the Lists collection
-        DocumentReference documentReference = db.collection(Constants.KEY_COLLECTION_LISTS).document();
 
-        //generate a new document id
-        String documentId= documentReference.getId();
-
-        //set the list id in the list object
-        list.setListId(documentId);
-
-        //add list to firestore
-        documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
-        .addOnCompleteListener(listener);
-    }
 
     /**
      * Updates an existing list in the database
@@ -289,13 +262,46 @@ public class FirebaseHelper {
     }
 
     /**
+     * Adds a new list to the database
+     * @param list :  a list object contains fields userId, listId, listName,
+     *                  color, and listType
+     * @param listener :a listener to handle success or failure after operation completes
+     */
+    public static void addList(UserList list, OnCompleteListener<Void> listener) {
+        //ensure that userEmail is not null or empty
+        if (list.getUserEmail() == null || list.getUserEmail().isEmpty()) {
+            FirebaseFirestoreException exception = new FirebaseFirestoreException(
+                    //set exception to indicate the email is missing
+                    "User email is missing for the list",
+                    FirebaseFirestoreException.Code.INVALID_ARGUMENT
+            ); //specific firestore error code
+            //return early
+            return;
+        }
+        //create a reference to a document int the Lists collection
+        DocumentReference documentReference = db.collection(Constants.KEY_COLLECTION_LISTS).document();
+
+        //generate a new document id
+        String documentId= documentReference.getId();
+
+        //set the list id in the list object
+        list.setListId(documentId);
+
+        //add list to firestore
+        documentReference.set(list.toHashMap()) //convert List to HashMap and add to Firestore
+                .addOnCompleteListener(listener);
+    }
+
+    /**
      * Add a new entry to a a list in the database
      * @param entry : entry object contains fields userId, username and password
      * @param listener: A listener to handle success or failure after operation completes
      */
     public static void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
+        Log.d("Debug", "trying to add entry");
         //ensure that list is not null
         if (listID == null || listID.isEmpty()) {
+            Log.d("Debug", "listIdNull");
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
                     //set exception to indicate the list id  is missing
                     "List id is missing for the list",
@@ -303,9 +309,12 @@ public class FirebaseHelper {
             );
             return;
         }
+        Log.d("Debug", "listID not null");
+
         //check if list exists
         db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
             if(document.exists()) {
+                Log.d("Debug", "document exists");
                 //create a reference to the entries sub collection
                 CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
                         .document(listID)
@@ -323,6 +332,7 @@ public class FirebaseHelper {
                             listener.onComplete(Tasks.forResult(null));
                         });
             } else {
+                Log.d("Debug", "document does not exist");
                 listener.onComplete(Tasks.forException(new Exception()));
             }
         });

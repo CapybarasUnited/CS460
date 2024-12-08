@@ -121,10 +121,11 @@ public class ListActivity extends AppCompatActivity {
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
                     Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString());
-                    FirebaseHelper.addEntry(entry, listID, new OnCompleteListener<DocumentReference>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                    FirebaseHelper.addEntry(entry, listID, task ->  {
+                        if(task.isSuccessful()){
                             showToast("Entry Added");
+                        }else{
+                            showToast("Failed to add entry");
                         }
                     });
                     //(add entry to recyclerview)
