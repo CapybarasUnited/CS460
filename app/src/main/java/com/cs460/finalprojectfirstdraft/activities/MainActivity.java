@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     }
 
     private void getLists() {
-        lists = new ArrayList<>(firebaseHelper.getUserListsbyParentID(""));
-        Log.d("Debug","num lists pulled" + lists.size());
+        lists = new ArrayList<>(firebaseHelper.getUserListsbyParentID(null));
+        Log.d("Debug","num lists pulled " + lists.size());
         if(!lists.isEmpty()){
             adapter = new ItemAdapter(lists, null, this);
             recyclerView.setAdapter(adapter);
