@@ -174,11 +174,12 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllLists(String userEmail, OnCompleteListener<List<UserList>> listener) {
+    public static void retrieveAllSubLists(String userEmail, String parentListId, OnCompleteListener<List<UserList>> listener) {
         //access the lists collection
-        db.collection("Lists")
+        db.collection(Constants.KEY_COLLECTION_LISTS)
                 //filter by email
                 .whereEqualTo("userEmail", userEmail)
+                .whereEqualTo("parentListId", parentListId)
                 .get()
                 //listener to handle the result of fetch operation
                 .addOnCompleteListener(task -> {
