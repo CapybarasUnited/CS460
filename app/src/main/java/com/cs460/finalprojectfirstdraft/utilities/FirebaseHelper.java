@@ -209,7 +209,7 @@ public class FirebaseHelper {
     public ArrayList<UserList> getRootLists() {
         ArrayList<UserList> returnList = new ArrayList<>();
         db.collection(Constants.KEY_COLLECTION_LISTS)
-                .whereEqualTo(Constants.KEY_EMAIL, CurrentUser.getCurrentUser().getEmail())
+                .whereEqualTo(Constants.KEY_USER_EMAIL, CurrentUser.getCurrentUser().getEmail())
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -224,6 +224,7 @@ public class FirebaseHelper {
                             (String) ds.get(Constants.KEY_USER_EMAIL)
                             ));
                 });
+        Log.d("Debug", String.valueOf(returnList.size()));
         return returnList;
     }
 
@@ -266,11 +267,12 @@ public class FirebaseHelper {
      * @param id List ID of the parent list
      * @return Array list of UserLists with a specified parent id
      */
-    public static ArrayList<UserList> getUserListsbyParentID(String id){
+    public ArrayList<UserList> getUserListsbyParentID(String id){
         ArrayList<UserList> lists = new ArrayList<>();
 
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .whereEqualTo(Constants.KEY_USER_EMAIL, id)
                 .get()
                 .addOnCompleteListener(task -> {
                     for (DocumentSnapshot ds : task.getResult().getDocuments()) {

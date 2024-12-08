@@ -62,23 +62,15 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     }
 
     private void getLists() {
-        Log.d("Debug","7.1");
-        lists = firebaseHelper.getRootLists();
-        Log.d("Debug","7.2");
+        lists = new ArrayList<>(firebaseHelper.getUserListsbyParentID(""));
+        Log.d("Debug","num lists pulled" + lists.size());
         if(!lists.isEmpty()){
-            Log.d("Debug","7.2.1");
             adapter = new ItemAdapter(lists, null, this);
-            Log.d("Debug","7.2.2");
             recyclerView.setAdapter(adapter);
-            Log.d("Debug","7.2.3");
             recyclerView.setVisibility(View.VISIBLE);
-            Log.d("Debug","7.2.4");
         }else{
-            Log.d("Debug","7.3");
             showNoListMessage();
-            Log.d("Debug","7.3.1");
         }
-        Log.d("Debug","7.4");
     }
 
     /**
@@ -86,17 +78,20 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
      * when clicked.
      */
     private void setListeners() {
-        Log.d("Debug","8.1");
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("Debug", "fabClicked");
                 // Navigate to the NewListActivity
                 Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
+                intent.putExtra("PARENT_LIST_ID", (String) null);
+                Log.d("Debug","intent created");
                 startActivity(intent);
+                Log.d("Debug","Activity Started");
                 finish();
+                Log.d("Debug","finished");
             }
         });
-        Log.d("Debug","8.2");
     }
 
     private void showNoListMessage(){
