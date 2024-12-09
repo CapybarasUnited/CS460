@@ -38,13 +38,14 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     /**
      * Called when the activity is first created.
      *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down, this Bundle contains the data it most recently supplied.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        firebaseHelper = FirebaseHelper.getInstance();
+        firebaseHelper = new FirebaseHelper();
         setContentView(binding.getRoot());
         String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
         binding.title.setText(newTitle);
@@ -52,9 +53,6 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         setListeners();
     }
 
-    /**
-     * Retrieve the lists from the database and store them, prepare the recyclerView.
-     */
     private void getLists() {
         loading(true);
         lists = new ArrayList<>();
@@ -74,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     }
 
     /**
-     * Sets up the Floating Action Button (FAB) to navigate to the NewListActivity when clicked.
+     * Sets up the Floating Action Button (FAB) to navigate to the NewListActivity
+     * when clicked.
      */
     private void setListeners() {
         binding.fab.setOnClickListener(new View.OnClickListener() {
@@ -89,10 +88,6 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         });
     }
 
-    /**
-     * Display/hide the progress bar depending on input.
-     * @param isLoading boolean is loading or not.
-     */
     private void loading(Boolean isLoading){
         if(isLoading){
             binding.progressBar.setVisibility(View.VISIBLE);
@@ -101,17 +96,10 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         }
     }
 
-    /**
-     * Display the "no lists" error message on the screen.
-     */
     private void showNoListMessage(){
         binding.textNoLists.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Launch a new ListActivity with a given RecyclerViewItem item.
-     * @param item List to open list activity with.
-     */
     @Override
     public void onItemClicked(RecyclerViewItem item) {
         Intent intent = new Intent(getApplicationContext(), ListActivity.class);

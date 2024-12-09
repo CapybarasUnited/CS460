@@ -39,6 +39,15 @@ public class UserList extends Item{
     }
 
     /**
+     *
+     *
+     *
+     */
+    public UserList(){
+
+    }
+
+    /**
      * Add a List or Entry to this list
      * @param item Item to add
      */
@@ -86,23 +95,9 @@ public class UserList extends Item{
         this.listName = listName;
     }
 
-    /**
-     * Set this lists ID
-     * @return void
-     */
     public void setListId(String listID) {this.listID = listID;
     }
-
-    /**
-     * Get this lists ID
-     * @return
-     */
     public String getListId() {return listID;}
-
-    /**
-     * Get this lists parent list ID
-     * @return
-     */
     public String getParentListId(){return parentListId;}
 
     /**
@@ -135,18 +130,9 @@ public class UserList extends Item{
      */
     public String getUserEmail() { return userEmail; }
 
-    /**
-     * Get is checklist
-     * @return boolean isChecklist
-     */
     public boolean getIsChecklist() {
         return isChecklist;
     }
-
-    /**
-     * Get is delete when checked
-     * @return boolean deleteWhenChecked
-     */
     public boolean getIsDelete() {
         return deleteWhenChecked;
     }

@@ -3,10 +3,13 @@ package com.cs460.finalprojectfirstdraft.utilities;
 import android.util.Log;
 
 import com.cs460.finalprojectfirstdraft.models.Entry;
+import com.cs460.finalprojectfirstdraft.models.Item;
+//import com.cs460.finalprojectfirstdraft.models.List;
 import com.cs460.finalprojectfirstdraft.models.User;
 import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -15,13 +18,16 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Firebase helper class used to add and get data to/from the FireStore database
- */
+import kotlin.contracts.Returns;
+
 public class FirebaseHelper {
     private static final FirebaseHelper firebaseHelper = new FirebaseHelper();
     private static FirebaseFirestore db;
@@ -34,27 +40,39 @@ public class FirebaseHelper {
         db = FirebaseFirestore.getInstance();
     }
 
-    /**
-     * Get the instance of FirebaseHelper
-     * @return FirebaseHelper instance
-     */
     public static FirebaseHelper getInstance() {
         return firebaseHelper;
     }
 
-    /**
-     * Get info about a user given their email and password
-     * @param email String user email
-     * @param password String user password
-     * @param listener onCompleteListener to do stuff when database returns
-     */
-    public void getUser(String email, String password, OnCompleteListener<QuerySnapshot> listener) {
+    public boolean userExists(String email, String password) {
+        AtomicBoolean returnBoolean = new AtomicBoolean(false);
+        db.collection(Constants.KEY_COLLECTION_USERS)
+                .whereEqualTo(Constants.KEY_EMAIL, email)
+                .whereEqualTo(Constants.KEY_PASSWORD, password)
+                .get()
+                .addOnCompleteListener(task -> {
+                    returnBoolean.set(true);
+                });
+        return returnBoolean.get();
+    }
+
+    public User getUser(String email, String password) {
         AtomicReference<User> user = null;
         db.collection(Constants.KEY_COLLECTION_USERS)
                 .whereEqualTo(Constants.KEY_EMAIL, email)
                 .whereEqualTo(Constants.KEY_PASSWORD, password)
                 .get()
-                .addOnCompleteListener(listener);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().getDocuments().isEmpty()) {
+                        DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+
+                        user.set(new User(documentSnapshot.getString(Constants.KEY_EMAIL),
+                                documentSnapshot.getString(Constants.KEY_PASSWORD),
+                                documentSnapshot.getString(Constants.KEY_FIRST_NAME),
+                                documentSnapshot.getString(Constants.KEY_LAST_NAME)));
+                    }
+                });
+        return user.get();
     }
 
     /**
@@ -90,6 +108,8 @@ public class FirebaseHelper {
                     }
                 });
     }
+
+
 
     /**
      * Updates an existing list in the database
@@ -154,7 +174,7 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllLists(String userEmail, OnCompleteListener<ArrayList<UserList>> listener) {
+    public static void retrieveAllLists(String userEmail, OnCompleteListener<List<UserList>> listener) {
         //access the lists collection
         db.collection("Lists")
                 //filter by email
@@ -165,7 +185,7 @@ public class FirebaseHelper {
                     //check if task is successful and result is not null
                     if(task.isSuccessful() && task.getResult() != null) {
                         //create an array list to hold retrieved UserList objects
-                        ArrayList<UserList> userLists = new ArrayList<>();
+                        List<UserList> userLists = new ArrayList<>();
                         //loop through each document in the result set
                         for(DocumentSnapshot document : task.getResult()) {
                             //covert document to list object
@@ -184,32 +204,90 @@ public class FirebaseHelper {
                 });
     }
 
-//    /**
-//     *
-//     * @param id List ID of the parent list
-//     * @return Array list of UserLists with a specified parent id
-//     */
-//    public ArrayList<UserList> getUserListsByParentID(String id){
-//        ArrayList<UserList> lists = new ArrayList<>();
-//
-//        db.collection(Constants.KEY_COLLECTION_LISTS)
-//                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
-//                .whereEqualTo(Constants.KEY_USER_EMAIL, id)
-//                .get()
-//                .addOnCompleteListener(task -> {
-//                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
-//                        lists.add(new UserList(
-//                                (String) ds.get(Constants.KEY_LIST_ID),
-//                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
-//                                (String) ds.get(Constants.KEY_LIST_NAME),
-//                                (String) ds.get(Constants.KEY_COLOR),
-//                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
-//                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
-//                                (String) ds.get(Constants.KEY_USER_EMAIL)));
-//                    }
-//                });
-//        return lists;
-//    }
+
+
+    public ArrayList<UserList> getRootLists() {
+        ArrayList<UserList> returnList = new ArrayList<>();
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_USER_EMAIL, CurrentUser.getCurrentUser().getEmail())
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, null)
+                .get()
+                .addOnCompleteListener(task -> {
+                    DocumentSnapshot ds = task.getResult().getDocuments().get(0);
+                    returnList.add(new UserList(
+                            (String) ds.get(Constants.KEY_LIST_ID),
+                            (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                            (String) ds.get(Constants.KEY_LIST_NAME),
+                            (String) ds.get(Constants.KEY_COLOR),
+                            (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                            (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                            (String) ds.get(Constants.KEY_USER_EMAIL)
+                            ));
+                });
+        Log.d("Debug", String.valueOf(returnList.size()));
+        return returnList;
+    }
+
+
+    public static ArrayList<Item> getItemsWithParentListId(String id) {
+        ArrayList<Item> items = new ArrayList<>();
+
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new UserList(
+                                (String) ds.get(Constants.KEY_LIST_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_LIST_NAME),
+                                (String) ds.get(Constants.KEY_COLOR),
+                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                                (String) ds.get(Constants.KEY_USER_EMAIL)));
+                    }
+                });
+
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        items.add(new Entry(
+                                (String) ds.get(Constants.KEY_ENTRY_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+                    }
+                });
+        return items;
+    }
+
+    /**
+     *
+     * @param id List ID of the parent list
+     * @return Array list of UserLists with a specified parent id
+     */
+    public ArrayList<UserList> getUserListsbyParentID(String id){
+        ArrayList<UserList> lists = new ArrayList<>();
+
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, id)
+                .whereEqualTo(Constants.KEY_USER_EMAIL, id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                        lists.add(new UserList(
+                                (String) ds.get(Constants.KEY_LIST_ID),
+                                (String) ds.get(Constants.KEY_PARENT_LIST_ID),
+                                (String) ds.get(Constants.KEY_LIST_NAME),
+                                (String) ds.get(Constants.KEY_COLOR),
+                                (boolean) ds.get(Constants.KEY_IS_CHECK_LIST),
+                                (boolean) ds.get(Constants.KEY_DELETE_WHEN_CHECKED),
+                                (String) ds.get(Constants.KEY_USER_EMAIL)));
+                    }
+                });
+        return lists;
+    }
 
     /**
      * Adds a new list to the database
@@ -349,7 +427,7 @@ public class FirebaseHelper {
      * @param listId: the id of the list whose entries will be retrieved
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void retrieveEntries(String listId, OnCompleteListener<ArrayList<Entry>> listener) {
+    public void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
         //ensure the list id is valid
         if (listId == null || listId.isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
@@ -368,7 +446,7 @@ public class FirebaseHelper {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         //create a list to store the retrieved enetries
-                        ArrayList<Entry> entries = new ArrayList<>();
+                        List<Entry> entries = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
                             Entry entry = document.toObject(Entry.class);
                             if(entry != null) {
