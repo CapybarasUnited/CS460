@@ -174,11 +174,12 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllLists(String userEmail, OnCompleteListener<List<UserList>> listener) {
+    public static void retrieveAllSubLists(String userEmail, String parentListId, OnCompleteListener<List<UserList>> listener) {
         //access the lists collection
-        db.collection("Lists")
+        db.collection(Constants.KEY_COLLECTION_LISTS)
                 //filter by email
                 .whereEqualTo("userEmail", userEmail)
+                .whereEqualTo("parentListId", parentListId)
                 .get()
                 //listener to handle the result of fetch operation
                 .addOnCompleteListener(task -> {
@@ -257,6 +258,7 @@ public class FirebaseHelper {
                                 (String) ds.get(Constants.KEY_ENTRY_ID),
                                 (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                                 (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+
                     }
                 });
         return items;
@@ -326,10 +328,10 @@ public class FirebaseHelper {
      * @param listener: A listener to handle success or failure after operation completes
      */
     public static void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
-        Log.d("Debug", "trying to add entry");
+        Log.d("AddEntry", "trying to add entry");
         //ensure that list is not null
         if (listID == null || listID.isEmpty()) {
-            Log.d("Debug", "listIdNull");
+            Log.d("AddEntry", "listIdNull");
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
                     //set exception to indicate the list id  is missing
                     "List id is missing for the list",
@@ -337,30 +339,38 @@ public class FirebaseHelper {
             );
             return;
         }
-        Log.d("Debug", "listID not null");
 
         //check if list exists
-        db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
-            if(document.exists()) {
-                Log.d("Debug", "document exists");
-                //create a reference to the entries sub collection
-                CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
-                        .document(listID)
-                        .collection("Entry");
-                //generate a new document id
-                DocumentReference newEntryRef = entryCollections.document();
-                String documentId= newEntryRef.getId();
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .document(listID)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Log.d("RetrieveSubList: ", "List document exists");
 
-                //set the entry id in the entry object
-                entry.setEntryId(documentId);
+                        //generate a new document id for entry
+                        DocumentReference newEntryRef = db.collection(Constants.KEY_COLLECTION_ENTRIES).document();
+                        String documentId= newEntryRef.getId();
 
-                //add entry to entry subcollection
-                newEntryRef.set(entry.entryToHashMap())
-                        .addOnCompleteListener(task -> {
-                            listener.onComplete(Tasks.forResult(null));
-                        });
+                        //set the entry id
+                        entry.setEntryId(documentId);
+
+                        //associate entry with its list
+                        entry.setListId(listID);
+
+                        //add entry to entry subcollection
+                        newEntryRef.set(entry.entryToHashMap())
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful())
+                                    {
+                                        Log.d("AddEntry", "Entry successfully added");
+                                        listener.onComplete(Tasks.forResult(newEntryRef));
+                                    }else {
+                                        Log.d("AddEntry", "Failed to add entry");
+                                    }
+                                });
             } else {
-                Log.d("Debug", "document does not exist");
+                Log.d("AddEntry", "List document does not exist");
                 listener.onComplete(Tasks.forException(new Exception()));
             }
         });
@@ -389,9 +399,7 @@ public class FirebaseHelper {
             )));
         }
         //update entry
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listID) //find using document id
-                .collection(Constants.KEY_COLLECTION_ENTRIES)
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
                 .document(entryID)
                 .update(updates) //perform partial update
                 .addOnCompleteListener(listener)
@@ -413,9 +421,7 @@ public class FirebaseHelper {
             return;
         }
         //delete entry
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listID) //find using document id
-                .collection(Constants.KEY_COLLECTION_ENTRIES)
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
                 .document(entryID)
                 .delete() //deletes document
                 .addOnCompleteListener(listener)
@@ -427,27 +433,28 @@ public class FirebaseHelper {
      * @param listId: the id of the list whose entries will be retrieved
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
+    public static void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
         //ensure the list id is valid
         if (listId == null || listId.isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
-                    "List ID is missing or invalis",
+                    "List ID is missing or invalid",
                     FirebaseFirestoreException.Code.INVALID_ARGUMENT
             );
             listener.onComplete(Tasks.forException(exception));
             return;
         }
 
-        //reference entries subcollection under the specific list
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listId)
-                .collection("Entry")
+        //reference entries collection
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo("listId", listId)
                 .get() //fetch entries
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
+                        //Log.d("retrieveEntries", "Query result size: " + task.getResult().size());
                         //create a list to store the retrieved enetries
                         List<Entry> entries = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
+                            //Log.d("retrieveEntries", "Document found: " + document.getData());
                             Entry entry = document.toObject(Entry.class);
                             if(entry != null) {
                                 entries.add(entry);
@@ -456,6 +463,7 @@ public class FirebaseHelper {
                         //notify the listener of the success
                         listener.onComplete(Tasks.forResult(entries));
                     } else {
+                        Log.e("retrieveEntries", "Query failed or no results", task.getException());
                         //notify listener of failure
                         listener.onComplete(Tasks.forException(task.getException()));
                     }
