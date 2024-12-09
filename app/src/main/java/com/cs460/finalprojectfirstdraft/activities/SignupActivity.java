@@ -30,7 +30,7 @@ SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private String encodeImage;
     //FirebaseHelper instance
-    private FirebaseHelper firebaseHelper = new FirebaseHelper();
+    private FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
 
     /**
      * Initialization method
