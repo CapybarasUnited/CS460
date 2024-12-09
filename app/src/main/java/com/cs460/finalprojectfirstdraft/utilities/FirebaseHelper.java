@@ -399,9 +399,7 @@ public class FirebaseHelper {
             )));
         }
         //update entry
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listID) //find using document id
-                .collection(Constants.KEY_COLLECTION_ENTRIES)
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
                 .document(entryID)
                 .update(updates) //perform partial update
                 .addOnCompleteListener(listener)
@@ -423,9 +421,7 @@ public class FirebaseHelper {
             return;
         }
         //delete entry
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listID) //find using document id
-                .collection(Constants.KEY_COLLECTION_ENTRIES)
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
                 .document(entryID)
                 .delete() //deletes document
                 .addOnCompleteListener(listener)
