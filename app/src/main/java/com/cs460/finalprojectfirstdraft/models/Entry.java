@@ -32,6 +32,11 @@ public class Entry extends Item{
         this.entryId = entryId;
     }
 
+    public String getEntryId(){ return entryId; }
+
+    public void setListId(String listId){ this.listId = listId; }
+
+    public String getListId(){ return listId; }
     /**
      * Set the value of isChecked
      * @param checked Boolean checked or unchecked

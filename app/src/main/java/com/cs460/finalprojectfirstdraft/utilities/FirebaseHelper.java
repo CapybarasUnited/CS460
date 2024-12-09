@@ -327,10 +327,10 @@ public class FirebaseHelper {
      * @param listener: A listener to handle success or failure after operation completes
      */
     public static void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
-        Log.d("Debug", "trying to add entry");
+        Log.d("AddEntry", "trying to add entry");
         //ensure that list is not null
         if (listID == null || listID.isEmpty()) {
-            Log.d("Debug", "listIdNull");
+            Log.d("AddEntry", "listIdNull");
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
                     //set exception to indicate the list id  is missing
                     "List id is missing for the list",
@@ -338,30 +338,39 @@ public class FirebaseHelper {
             );
             return;
         }
-        Log.d("Debug", "listID not null");
+        Log.d("AddEntry", "listID not valid");
 
         //check if list exists
-        db.collection(Constants.KEY_COLLECTION_LISTS).document(listID).get().addOnSuccessListener(document -> {
-            if(document.exists()) {
-                Log.d("Debug", "document exists");
-                //create a reference to the entries sub collection
-                CollectionReference entryCollections = db.collection(Constants.KEY_COLLECTION_LISTS)
-                        .document(listID)
-                        .collection("Entry");
-                //generate a new document id
-                DocumentReference newEntryRef = entryCollections.document();
-                String documentId= newEntryRef.getId();
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                .document(listID)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Log.d("RetrieveSubList: ", "List document exists");
 
-                //set the entry id in the entry object
-                entry.setEntryId(documentId);
+                        //generate a new document id for entry
+                        DocumentReference newEntryRef = db.collection(Constants.KEY_COLLECTION_ENTRIES).document();
+                        String documentId= newEntryRef.getId();
 
-                //add entry to entry subcollection
-                newEntryRef.set(entry.entryToHashMap())
-                        .addOnCompleteListener(task -> {
-                            listener.onComplete(Tasks.forResult(null));
-                        });
+                        //set the entry id
+                        entry.setEntryId(documentId);
+
+                        //associate entry with its list
+                        entry.setListId(listID);
+
+                        //add entry to entry subcollection
+                        newEntryRef.set(entry.entryToHashMap())
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful())
+                                    {
+                                        Log.d("AddEntry", "Entry successfully added");
+                                        listener.onComplete(Tasks.forResult(newEntryRef));
+                                    }else {
+                                        Log.d("AddEntry", "Failed to add entry");
+                                    }
+                                });
             } else {
-                Log.d("Debug", "document does not exist");
+                Log.d("AddEntry", "List document does not exist");
                 listener.onComplete(Tasks.forException(new Exception()));
             }
         });
