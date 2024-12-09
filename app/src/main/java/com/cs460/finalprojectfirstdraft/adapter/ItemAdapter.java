@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder>{
     private ArrayList<RecyclerViewItem> items;
+
+    private boolean showDeleteIcon = false; // Default state for the delete icon
     private ItemListener itemListener;
     public ItemAdapter(ArrayList<UserList> lists, ArrayList<Entry> entries, ItemListener itemListener){
         this.itemListener = itemListener;
@@ -38,6 +40,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             items.add(item);
         }
     }
+
+    public void setShowDeleteIcon(boolean showDeleteIcon) {
+        this.showDeleteIcon = showDeleteIcon;
+        notifyDataSetChanged(); // Refresh the RecyclerView
+    }
+
 
     @NonNull
     @Override
@@ -64,21 +72,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         public void setItemData(RecyclerViewItem item) {
             binding.itemText.setText(item.text);
-            if (!item.isList){
-                if (item.isChecked){
+
+            // Toggle the visibility of the delete icon
+            binding.deleteIcon.setVisibility(showDeleteIcon ? View.VISIBLE : View.GONE);
+
+            if (!item.isList) {
+                if (item.isChecked) {
                     binding.itemText.setPaintFlags(binding.itemText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                }else {
+                } else {
                     binding.itemText.setPaintFlags(binding.itemText.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                 }
             }
-            if (item.isNormalChecklist){
+            if (item.isNormalChecklist) {
                 binding.textPercent.setText(item.percentChecked);
                 binding.textPercent.setVisibility(View.VISIBLE);
                 binding.textPercentSymbol.setVisibility(View.VISIBLE);
             }
-            setBackgroundColor(item);
             binding.getRoot().setOnClickListener(v -> itemListener.onItemClicked(item));
         }
+
 
         public void setBackgroundColor(RecyclerViewItem item){
             switch (item.backgroundColor){
