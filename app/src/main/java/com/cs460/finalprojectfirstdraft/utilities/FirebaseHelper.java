@@ -258,6 +258,7 @@ public class FirebaseHelper {
                                 (String) ds.get(Constants.KEY_ENTRY_ID),
                                 (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                                 (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+
                     }
                 });
         return items;
@@ -338,7 +339,6 @@ public class FirebaseHelper {
             );
             return;
         }
-        Log.d("AddEntry", "listID not valid");
 
         //check if list exists
         db.collection(Constants.KEY_COLLECTION_LISTS)
@@ -437,27 +437,28 @@ public class FirebaseHelper {
      * @param listId: the id of the list whose entries will be retrieved
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
+    public static void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
         //ensure the list id is valid
         if (listId == null || listId.isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
-                    "List ID is missing or invalis",
+                    "List ID is missing or invalid",
                     FirebaseFirestoreException.Code.INVALID_ARGUMENT
             );
             listener.onComplete(Tasks.forException(exception));
             return;
         }
 
-        //reference entries subcollection under the specific list
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(listId)
-                .collection("Entry")
+        //reference entries collection
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo("listId", listId)
                 .get() //fetch entries
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
+                        //Log.d("retrieveEntries", "Query result size: " + task.getResult().size());
                         //create a list to store the retrieved enetries
                         List<Entry> entries = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
+                            //Log.d("retrieveEntries", "Document found: " + document.getData());
                             Entry entry = document.toObject(Entry.class);
                             if(entry != null) {
                                 entries.add(entry);
@@ -466,6 +467,7 @@ public class FirebaseHelper {
                         //notify the listener of the success
                         listener.onComplete(Tasks.forResult(entries));
                     } else {
+                        Log.e("retrieveEntries", "Query failed or no results", task.getException());
                         //notify listener of failure
                         listener.onComplete(Tasks.forException(task.getException()));
                     }

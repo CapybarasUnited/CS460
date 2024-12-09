@@ -11,6 +11,7 @@ public class Entry extends Item{
     private String entryId, listId;
     private String entryContent;
 
+
     /**
      * Constructor
      * @param entryId This entries ID
@@ -22,8 +23,15 @@ public class Entry extends Item{
         this.entryId = entryId;
         this.listId = listId;
         this.entryContent = entryContent;
+        //this.isChecked = isChecked;
     }
 
+    /**
+     * No argument constructor to deserialize object
+     */
+    public Entry(){
+
+    }
     /**
      * set value of entry id
      * @param entryId
@@ -67,9 +75,9 @@ public class Entry extends Item{
         HashMap<String, Object> map = new HashMap<>();
 
         map.put("entryId", entryId);
-        map.put("entryName", listId);
+        map.put("listId", listId);
         map.put("entryContent", entryContent);
-        map.put("isChecked", isChecked);
+        //map.put("isChecked", isChecked);
 
         return map;
 
@@ -83,5 +91,9 @@ public class Entry extends Item{
         return entryContent;
     }
 
-
+    public String toString() {
+        return "EntryId: " + entryId + " listId: " + listId + " entryContent: " + entryContent;
+    }
 }
+
+
