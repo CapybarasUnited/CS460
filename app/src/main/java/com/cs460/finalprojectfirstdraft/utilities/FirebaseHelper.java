@@ -258,7 +258,7 @@ public class FirebaseHelper {
                                 (String) ds.get(Constants.KEY_ENTRY_ID),
                                 (String) ds.get(Constants.KEY_PARENT_LIST_ID),
                                 (String) ds.get(Constants.KEY_ENTRY_CONTENT),
-                                false));
+                                false)); //change last line to db result if we use isChecked
 
                     }
                 });
