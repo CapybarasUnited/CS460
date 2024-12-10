@@ -24,6 +24,13 @@ public class Entry extends Item{
         this.isChecked = isChecked;
     }
 
+    public Entry(Entry entry){
+        this.entryId = entry.entryId;
+        this.listId = entry.listId;
+        this.entryContent = entry.entryContent;
+        this.isChecked = entry.isChecked;
+    }
+
     /**
      * No argument constructor to deserialize object
      */

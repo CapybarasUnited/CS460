@@ -174,7 +174,7 @@ public class FirebaseHelper {
      * @param userEmail: user email
      * @param listener:  A listener to handle success or failure after operation completes
      */
-    public static void retrieveAllSubLists(String userEmail, String parentListId, OnCompleteListener<List<UserList>> listener) {
+    public static void retrieveAllSubLists(String userEmail, String parentListId, OnCompleteListener<ArrayList<UserList>> listener) {
         //access the lists collection
         db.collection(Constants.KEY_COLLECTION_LISTS)
                 //filter by email
@@ -186,11 +186,12 @@ public class FirebaseHelper {
                     //check if task is successful and result is not null
                     if(task.isSuccessful() && task.getResult() != null) {
                         //create an array list to hold retrieved UserList objects
-                        List<UserList> userLists = new ArrayList<>();
+                        ArrayList<UserList> userLists = new ArrayList<>();
                         //loop through each document in the result set
                         for(DocumentSnapshot document : task.getResult()) {
                             //covert document to list object
                             UserList list = document.toObject(UserList.class);
+                            list.setIsDelete(document.get("deleteWhenChecked", Boolean.class));
                             //ensure conversion was successful
                             if (list != null) {
                                 userLists.add(list);//add List objects to the list
@@ -198,6 +199,34 @@ public class FirebaseHelper {
                         }
                         //notify listener and pass the list of List objects
                         listener.onComplete(Tasks.forResult(userLists));
+                    } else {
+                        //notify listener with exception
+                        listener.onComplete(Tasks.forException(task.getException()));
+                    }
+                });
+    }
+    /**
+     *Retrieves one list belonging to a user from database
+     * @param userEmail: user email
+     * @param listener:  A listener to handle success or failure after operation completes
+     */
+    public static void retrieveOneList(String userEmail, String listId, OnCompleteListener<UserList> listener) {
+        //access the lists collection
+        db.collection(Constants.KEY_COLLECTION_LISTS)
+                //filter by email
+                .whereEqualTo("userEmail", userEmail)
+                .whereEqualTo("listId", listId)
+                .get()
+                //listener to handle the result of fetch operation
+                .addOnCompleteListener(task -> {
+                    //check if task is successful and result is not null
+                    if(task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                        UserList list = doc.toObject(UserList.class);
+                        assert list != null;
+                        list.setIsDelete(task.getResult().getDocuments().get(0).get("deleteWhenChecked", Boolean.class));
+                        //notify listener and pass the list of List objects
+                        listener.onComplete(Tasks.forResult(list));
                     } else {
                         //notify listener with exception
                         listener.onComplete(Tasks.forException(task.getException()));
@@ -225,7 +254,6 @@ public class FirebaseHelper {
                             (String) ds.get(Constants.KEY_USER_EMAIL)
                             ));
                 });
-        Log.d("Debug", String.valueOf(returnList.size()));
         return returnList;
     }
 
@@ -329,10 +357,8 @@ public class FirebaseHelper {
      * @param listener: A listener to handle success or failure after operation completes
      */
     public static void addEntry(Entry entry, String listID, OnCompleteListener<DocumentReference> listener) {
-        Log.d("AddEntry", "trying to add entry");
         //ensure that list is not null
         if (listID == null || listID.isEmpty()) {
-            Log.d("AddEntry", "listIdNull");
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
                     //set exception to indicate the list id  is missing
                     "List id is missing for the list",
@@ -347,7 +373,6 @@ public class FirebaseHelper {
                 .get()
                 .addOnSuccessListener(document -> {
                     if (document.exists()) {
-                        Log.d("RetrieveSubList: ", "List document exists");
 
                         //generate a new document id for entry
                         DocumentReference newEntryRef = db.collection(Constants.KEY_COLLECTION_ENTRIES).document();
@@ -383,7 +408,7 @@ public class FirebaseHelper {
      * @param updates: a map containing fields to update and their new values
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void updateEntry(String listID, String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
+    public static void updateEntry(String listID, String entryID, Map<String, Object> updates, OnCompleteListener<Void> listener) {
         //validate listId and entryId
         if (listID == null || listID.isEmpty()||entryID == null||entryID.isEmpty()) {
             listener.onComplete(Tasks.forException(new FirebaseFirestoreException(
@@ -412,7 +437,7 @@ public class FirebaseHelper {
      * @param entryID: the id of the document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public void deleteEntry(String listID, String entryID, OnCompleteListener<Void> listener) {
+    public static void deleteEntry(String listID, String entryID, OnCompleteListener<Void> listener) {
         //validate listId and entryId
         if (listID == null || listID.isEmpty()||entryID == null||entryID.isEmpty()) {
             listener.onComplete(Tasks.forException(new FirebaseFirestoreException(
@@ -434,7 +459,7 @@ public class FirebaseHelper {
      * @param listId: the id of the list whose entries will be retrieved
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public static void retrieveEntries(String listId, OnCompleteListener<List<Entry>> listener) {
+    public static void retrieveEntries(String listId, OnCompleteListener<ArrayList<Entry>> listener) {
         //ensure the list id is valid
         if (listId == null || listId.isEmpty()) {
             FirebaseFirestoreException exception = new FirebaseFirestoreException(
@@ -453,12 +478,14 @@ public class FirebaseHelper {
                     if (task.isSuccessful() && task.getResult() != null) {
                         //Log.d("retrieveEntries", "Query result size: " + task.getResult().size());
                         //create a list to store the retrieved enetries
-                        List<Entry> entries = new ArrayList<>();
+                        ArrayList<Entry> entries = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
                             //Log.d("retrieveEntries", "Document found: " + document.getData());
                             Entry entry = document.toObject(Entry.class);
+                            entry.setChecked(document.get("isChecked", Boolean.class));
                             if(entry != null) {
                                 entries.add(entry);
+
                             }
                         }
                         //notify the listener of the success

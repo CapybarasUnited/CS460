@@ -71,13 +71,7 @@ public class UserList extends Item{
         return (Item[]) list.toArray();
     }
 
-    /**
-     * merhod to set user email
-     * @param userEmail
-     */
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
+
 
     /**
      * Get the size of this list
@@ -87,26 +81,13 @@ public class UserList extends Item{
         return list.size();
     }
 
-    /**
-     * Set this Lists name
-     * @param listName String new name of this list
-     */
-    public void setListName(String listName) {
-        this.listName = listName;
-    }
 
-    public void setListId(String listID) {this.listId = listID;
-    }
+
+
     public String getListId() {return listId;}
     public String getParentListId(){return parentListId;}
 
-    /**
-     * Set the color of this list
-     * @param color Color new color of this list
-     */
-    public void setColor(String color) {
-        this.color = color;
-    }
+
 
     /**
      * Get the name of this list
@@ -154,6 +135,32 @@ public class UserList extends Item{
 
         return  map;
     }
+
+    public void setListId(String listID) {this.listId = listID;}
+    public void setParentListId(String parentListId) {this.parentListId = parentListId;}
+    /**
+     * Set the color of this list
+     * @param color Color new color of this list
+     */
+    public void setColor(String color) {
+        this.color = color;
+    }
+    /**
+     * Set this Lists name
+     * @param listName String new name of this list
+     */
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
+    /**
+     * merhod to set user email
+     * @param userEmail
+     */
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+    public void setIsChecklist(Boolean isChecklist){this.isChecklist = isChecklist;}
+    public void setIsDelete(Boolean isDelete){deleteWhenChecked = isDelete;}
 
     public String toString() {
         return "User List { listId " + listId +  "Parent list id: " + parentListId + "list name: " + listName +

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +22,8 @@ import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
 import com.cs460.finalprojectfirstdraft.models.UserList;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
@@ -56,21 +59,32 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     }
 
     private void getLists() {
-        loading(true);
         lists = new ArrayList<>();
-        UserList userList1 = new UserList("1","0", "Books", "Purple" , false, false, "sam@sam.com");
-        UserList userList2 = new UserList("1","0", "Other Stuff", "Red" , true, false, "sam@sam.com");
-        lists.add(userList1);
-        lists.add(userList2);
-        if(!lists.isEmpty()){
-            adapter = new ItemAdapter(lists, new ArrayList<Entry>(), this);
-            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-            binding.recyclerView.setAdapter(adapter);
-            loading(false);
-            binding.recyclerView.setVisibility(View.VISIBLE);
-        }else{
-            showNoListMessage();
-        }
+        loading(true);
+        FirebaseHelper.retrieveAllSubLists(CurrentUser.getCurrentUser().getEmail(),null, new OnCompleteListener<ArrayList<UserList>>(){
+                    @Override
+                    public void onComplete(@NonNull Task<ArrayList<UserList>> task) {
+                        lists = task.getResult();
+
+                        if(!lists.isEmpty()){
+                            Log.d("Debug", "Lists is not empty");
+                            adapter = new ItemAdapter(lists, new ArrayList<Entry>(), MainActivity.this);
+                            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                            binding.recyclerView.setAdapter(adapter);
+                            loading(false);
+                            binding.recyclerView.setVisibility(View.VISIBLE);
+                        }else{
+                            loading(false);
+                            showNoListMessage();
+                        }
+                    }
+                });
+
+//        UserList userList1 = new UserList("1",null, "Books", "Purple" , false, false, "sam@sam.com");
+//        UserList userList2 = new UserList("1",null, "Other Stuff", "Red" , true, false, "sam@sam.com");
+//        lists.add(userList1);
+//        lists.add(userList2);
+
     }
 
     /**
@@ -116,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     @Override
     public void onItemClicked(RecyclerViewItem item) {
         Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+        Log.d("Debug", "List ID of " + item.text + ": " + item.id);
         intent.putExtra("LIST_ID", item.id);
         startActivity(intent);
         finish();

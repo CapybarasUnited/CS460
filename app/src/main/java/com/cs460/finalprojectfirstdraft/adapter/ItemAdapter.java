@@ -31,10 +31,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         items = new ArrayList<>();
 
         //create RecyclerViewItems from the UserLists and Entries passed in
+
         for (int i = 0; i < lists.size();i++){
             RecyclerViewItem item = new RecyclerViewItem(lists.get(i), i);
             items.add(item);
         }
+
         for (int i = 0; i < entries.size(); i++){
             RecyclerViewItem item = new RecyclerViewItem(entries.get(i), i);
             items.add(item);
@@ -83,8 +85,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     binding.itemText.setPaintFlags(binding.itemText.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                 }
             }
-            if (item.isNormalChecklist) {
-                binding.textPercent.setText(item.percentChecked);
+            if (item.isList && item.isCheckList && !item.deleteWhenChecked) {
+                binding.textPercent.setText(String.format("%d", item.percentChecked));
                 binding.textPercent.setVisibility(View.VISIBLE);
                 binding.textPercentSymbol.setVisibility(View.VISIBLE);
             }

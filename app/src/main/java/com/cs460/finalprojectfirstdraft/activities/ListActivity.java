@@ -1,38 +1,32 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.ItemAdapter;
-import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
 import com.cs460.finalprojectfirstdraft.databinding.ActivityListBinding;
 import com.cs460.finalprojectfirstdraft.listeners.ItemListener;
 import com.cs460.finalprojectfirstdraft.models.Entry;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
 import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
 import com.cs460.finalprojectfirstdraft.models.UserList;
+import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ListActivity extends AppCompatActivity implements ItemListener {
 
@@ -42,8 +36,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
     private FirebaseHelper firebaseHelper;
     private Bundle extras;
     private String listID;
-    private boolean isChecklist;
-    private boolean deleteWhenChecked;
+    private UserList thisList;
     private boolean addingEntries;
     private boolean addPanelVisible;
 
@@ -56,34 +49,58 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         super.onCreate(savedInstanceState);
         binding = ActivityListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        extras = getIntent().getExtras();
+        listID = extras.getString("LIST_ID");
+        thisList = new UserList();
+        getListContext(listID);
 
         getListsAndEntries();
         setListeners();
 
-        extras = getIntent().getExtras();
-        listID = extras.getString("LIST_ID");
+        Log.d("Debug", "list ID in List Activity: " + listID);
         addingEntries = false;
         addPanelVisible = false;
     }
 
-    private void getListsAndEntries() {
-        loading(true);
+    private void getListContext(String listID){
+        FirebaseHelper.retrieveOneList(CurrentUser.getCurrentUser().getEmail(), listID, new OnCompleteListener<UserList>() {
+            @Override
+            public void onComplete(@NonNull Task<UserList> task) {
+                thisList.setListName(task.getResult().getListName());
+                thisList.setColor(task.getResult().getColor());
+                thisList.setParentListId(task.getResult().getParentListId());
+                thisList.setIsChecklist(task.getResult().getIsChecklist());
+                thisList.setIsDelete(task.getResult().getIsDelete());
 
+                if (thisList.getIsDelete()){
+                    Log.d("Debug", thisList.getListName() + " is delete");
+                }else{
+                    Log.d("Debug", thisList.getListName() + " is delete");
+                }
+            }
+        });
+    }
+
+    private void getListsAndEntries() {
         lists = new ArrayList<>();
         entries = new ArrayList<>();
 
-        UserList list1 = new UserList("1", listID, "Favorites", "Yellow", false, false, "sam@sam.com");
-        lists.add(list1);
-        Entry entry1 = new Entry("2", listID, "Hunger Games", true);
-        Entry entry2 = new Entry("3", listID, "Lord of the Rings", false);
-        entries.add(entry1);
-        entries.add(entry2);
-
-        adapter = new ItemAdapter(lists, entries, this);
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerView.setAdapter(adapter);
-
-        loading(false);
+        FirebaseHelper.retrieveAllSubLists(CurrentUser.getCurrentUser().getEmail(), listID, new OnCompleteListener<ArrayList<UserList>>() {
+            @Override
+            public void onComplete(@NonNull Task<ArrayList<UserList>> task) {
+                lists = task.getResult();
+                FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
+                            entries = task.getResult();
+                            adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                            binding.recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+                            binding.recyclerView.setAdapter(adapter);
+                    }
+                });
+            }
+        });
+        binding.progressBar.setVisibility(View.GONE);
         binding.recyclerView.setVisibility(View.VISIBLE);
     }
 
@@ -149,11 +166,17 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                             showToast("Failed to add entry");
                         }
                     });
-                    // Add entry to RecyclerView
-                    entries.add(entry);
-                    adapter = new ItemAdapter(lists, entries, ListActivity.this);
-                    binding.recyclerView.setAdapter(adapter);
-                    binding.editTextAddEntry.setText(null);
+                    entries = new ArrayList<>();
+                    FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
+                            entries = task.getResult();
+                            entries.add(entry);
+                            adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                            binding.recyclerView.setAdapter(adapter);
+                            binding.editTextAddEntry.setText(null);
+                        }
+                    });
                     return true;
                 } else {
                     return false;
@@ -166,21 +189,50 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void loading(Boolean isLoading) {
-        if (isLoading) {
-            binding.progressBar.setVisibility(View.VISIBLE);
-        } else {
-            binding.progressBar.setVisibility(View.INVISIBLE);
-        }
-    }
-
     @Override
     public void onItemClicked(RecyclerViewItem recyclerViewItem) {
+        Log.d("Debug", thisList.getListName());
+        if(thisList.getIsDelete()){
+            Log.d("Debug", "is Delete");
+        }else{
+            Log.d("Debug", "is not Delete");
+        }
+        if(thisList.getIsChecklist()){
+            Log.d("Debug", "is Checklist");
+        }else{
+            Log.d("Debug", "is not Checklist");
+        }
+
         if (!recyclerViewItem.isList) {
-            entries.get(recyclerViewItem.position).setChecked(!recyclerViewItem.isChecked);
-            adapter = new ItemAdapter(lists, entries, ListActivity.this);
-            binding.recyclerView.setAdapter(adapter);
-        } else {
+            Log.d("Debug","Is List");
+            if(showDeleteIcon || thisList.getIsDelete()){
+                Log.d("Debug","Is Delete");
+
+                FirebaseHelper.deleteEntry(listID, recyclerViewItem.id, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        getListsAndEntries();
+                    }
+                });
+            }else if(thisList.getIsChecklist()){
+                //Log.d("Debug","Is Checklist");
+                Map<String, Object> changes = new HashMap<>();
+                changes.put("isChecked", !recyclerViewItem.isChecked);
+                FirebaseHelper.updateEntry(listID, recyclerViewItem.id, changes, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        getListsAndEntries();
+                    }
+                });
+            }
+        } else if(showDeleteIcon) {
+            FirebaseHelper.deleteList(recyclerViewItem.id, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    getListsAndEntries();
+                }
+            });
+        }else{
             Intent intent = new Intent(getApplicationContext(), ListActivity.class);
             intent.putExtra("LIST_ID", recyclerViewItem.id);
             startActivity(intent);
