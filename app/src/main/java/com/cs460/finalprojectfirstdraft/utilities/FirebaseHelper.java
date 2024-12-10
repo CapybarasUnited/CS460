@@ -498,4 +498,60 @@ public class FirebaseHelper {
                 });
     }
 
+    /**
+     * Method to calculate the progress of a given list
+     * based on the number of checked off entries
+     *
+     * @param listID
+     * @param callback
+     */
+    public static void calculateListProgress(String listID, ProgressCallback callback) {
+        Log.d("ProgressCalculation", "Fetching progress for listID: " + listID);
+
+        //query the entries collection filtering by list id
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo("listId", listID)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int totalEntries = querySnapshot.size();
+                    int checkedEntries = 0;
+                    Log.d("ProgressCalculation", "Total entries fetched: " + totalEntries);
+
+                    //iterate through entries to find number of checked entries
+                    for (DocumentSnapshot doc : querySnapshot) {
+                        boolean isChecked = doc.contains("isChecked") && Boolean.TRUE.equals(doc.getBoolean("isChecked"));
+                        Log.d("ProgressCalculation", "Document ID: " + doc.getId() + ", isChecked: " + isChecked);
+
+                        if (isChecked) {
+                            checkedEntries++;
+                        }
+                    }
+                    //calculate progress percentage
+                    int progress;
+                    if (totalEntries > 0) {
+                        progress = (checkedEntries * 100) / totalEntries;
+                    } else {
+                        progress = 0;
+                    }
+
+                    Log.d("ProgressCalculation", "Progress calculated for listID: " + listID + " is " + progress + "%");
+                    callback.onProgressCalculated(progress);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ProgressCalculation", "Error fetching progress for listID: " + listID, e);
+                    callback.onError(e);
+                });
+    }
+
+    /**
+     * Callback interface for progress calculations.
+     */
+    public interface ProgressCallback {
+        void onProgressCalculated(int progress); //called when progress is calculated
+        void onError(Exception e); //called when there is an error
+    }
+
+
+
+
 }
