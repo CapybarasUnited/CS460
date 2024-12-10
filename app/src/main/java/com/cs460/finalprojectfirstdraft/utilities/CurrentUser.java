@@ -49,8 +49,7 @@ public class CurrentUser {
      * Print info about the current user
      */
     public static void printUserInfo() {
-        User temp = currentUser.getUser();
-        System.out.println(currentUser);
+        System.out.println(currentUser.toString());
     }
 
     @NonNull
