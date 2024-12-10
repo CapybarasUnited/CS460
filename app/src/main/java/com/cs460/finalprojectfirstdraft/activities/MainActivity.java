@@ -3,23 +3,23 @@ package com.cs460.finalprojectfirstdraft.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.cs460.finalprojectfirstdraft.R;
 import com.cs460.finalprojectfirstdraft.adapter.ItemAdapter;
+import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
 import com.cs460.finalprojectfirstdraft.listeners.ItemListener;
 import com.cs460.finalprojectfirstdraft.models.Entry;
-import com.cs460.finalprojectfirstdraft.models.Item;
-import com.cs460.finalprojectfirstdraft.models.ListItem;
-import com.cs460.finalprojectfirstdraft.R;
-import com.cs460.finalprojectfirstdraft.adapter.RecyclerViewAdapter;
-import com.cs460.finalprojectfirstdraft.databinding.ActivityMainBinding;
-import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
 import com.cs460.finalprojectfirstdraft.models.UserList;
+import com.cs460.finalprojectfirstdraft.models.RecyclerViewItem;
 import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,13 +52,16 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         firebaseHelper = new FirebaseHelper();
         setContentView(binding.getRoot());
+
         String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
         binding.title.setText(newTitle);
+
         getLists();
         setListeners();
     }
 
     private void getLists() {
+        loading(true);
         lists = new ArrayList<>();
         loading(true);
         FirebaseHelper.retrieveAllSubLists(CurrentUser.getCurrentUser().getEmail(),null, new OnCompleteListener<ArrayList<UserList>>(){
@@ -103,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
             }
         });
 
+        binding.settingsIcon.setOnClickListener(view -> showSettingsMenu(view));
+
         binding.bannerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,16 +119,43 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         });
     }
 
+    private void toggleDeleteOption() {
+        showDeleteIcon = !showDeleteIcon;
+        if (adapter != null) {
+            adapter.setShowDeleteIcon(showDeleteIcon);
+        }
+    }
 
-    private void loading(Boolean isLoading){
-        if(isLoading){
+    /**
+     * Shows a popup menu when the settings icon is clicked.
+     *
+     * @param view The view to attach the popup menu to.
+     */
+    private void showSettingsMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.toggleDelete) {
+                toggleDeleteOption();
+                return true;
+            }
+            return false; // Default case for other menu items
+        });
+
+        popupMenu.show();
+    }
+
+    private void loading(Boolean isLoading) {
+        if (isLoading) {
             binding.progressBar.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             binding.progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void showNoListMessage(){
+    private void showNoListMessage() {
         binding.textNoLists.setVisibility(View.VISIBLE);
     }
 

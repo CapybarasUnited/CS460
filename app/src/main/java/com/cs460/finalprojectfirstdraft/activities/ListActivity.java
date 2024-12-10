@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuInflater;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -62,26 +64,9 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         addPanelVisible = false;
     }
 
-    private void getListContext(String listID){
-        FirebaseHelper.retrieveOneList(CurrentUser.getCurrentUser().getEmail(), listID, new OnCompleteListener<UserList>() {
-            @Override
-            public void onComplete(@NonNull Task<UserList> task) {
-                thisList.setListName(task.getResult().getListName());
-                thisList.setColor(task.getResult().getColor());
-                thisList.setParentListId(task.getResult().getParentListId());
-                thisList.setIsChecklist(task.getResult().getIsChecklist());
-                thisList.setIsDelete(task.getResult().getIsDelete());
-
-                if (thisList.getIsDelete()){
-                    Log.d("Debug", thisList.getListName() + " is delete");
-                }else{
-                    Log.d("Debug", thisList.getListName() + " is delete");
-                }
-            }
-        });
-    }
-
     private void getListsAndEntries() {
+        loading(true);
+
         lists = new ArrayList<>();
         entries = new ArrayList<>();
 
@@ -137,6 +122,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             }
         });
 
+        // Add entry
         binding.btnAddEntry.setOnClickListener(view -> {
             addingEntries = true;
             addPanelVisible = false;
@@ -147,6 +133,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             binding.fabAdd.setImageDrawable(getDrawable(R.drawable.ic_check));
         });
 
+        // Add sublist
         binding.btnAddSublist.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
             intent.putExtra("PARENT_LIST_ID", listID);
@@ -154,39 +141,87 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             finish();
         });
 
-        binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
-                    FirebaseHelper.addEntry(entry, listID, task -> {
-                        if (task.isSuccessful()) {
-                            showToast("Entry Added");
-                        } else {
-                            showToast("Failed to add entry");
-                        }
-                    });
-                    entries = new ArrayList<>();
-                    FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
-                            entries = task.getResult();
-                            entries.add(entry);
-                            adapter = new ItemAdapter(lists, entries, ListActivity.this);
-                            binding.recyclerView.setAdapter(adapter);
-                            binding.editTextAddEntry.setText(null);
-                        }
-                    });
-                    return true;
-                } else {
-                    return false;
-                }
+        // Add settings icon click listener
+        binding.settingsIcon.setOnClickListener(view -> showSettingsMenu(view));
+
+        // Handle "Enter" key in the entry text field
+        binding.editTextAddEntry.setOnKeyListener((view, i, keyEvent) -> {
+            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
+                entries.add(entry);
+                adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                binding.recyclerView.setAdapter(adapter);
+                binding.editTextAddEntry.setText(null);
+                showToast("Entry Added");
+
+
+                FirebaseHelper.addEntry(entry, listID, task -> {
+                    if (task.isSuccessful()) {
+                        showToast("Entry Added");
+                    } else {
+                        showToast("Failed to add entry");
+                    }
+                });
+//                entries = new ArrayList<>();
+//                FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
+//                        entries = task.getResult();
+//                        entries.add(entry);
+//                        adapter = new ItemAdapter(lists, entries, ListActivity.this);
+//                        binding.recyclerView.setAdapter(adapter);
+//                        binding.editTextAddEntry.setText(null);
+//                    }
+//                });
+
+
+                return true;
+            }
+            else {
+                return false;
             }
         });
     }
 
+    /**
+     * Shows a popup menu when the settings icon is clicked.
+     *
+     * @param view The view to attach the popup menu to.
+     */
+    private void showSettingsMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.toggleDelete) {
+                toggleDeleteOption();
+                return true;
+            }
+            return false; // Default case for other menu items
+        });
+
+        popupMenu.show();
+    }
+
+
+    private void toggleDeleteOption() {
+        showDeleteIcon = !showDeleteIcon;
+        if (adapter != null) {
+            adapter.setShowDeleteIcon(showDeleteIcon);
+        }
+    }
+
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void loading(Boolean isLoading) {
+        if (isLoading) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+        } else {
+            binding.progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
