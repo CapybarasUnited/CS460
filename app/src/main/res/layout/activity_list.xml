@@ -30,16 +30,6 @@
             android:textStyle="bold"
             android:textColor="@android:color/white" />
 
-        <!-- Toggle Delete Button -->
-        <Button
-            android:id="@+id/bannerButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Toggle Delete"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@android:color/white"
-            android:textColor="@color/blue" />
-
         <!-- Settings Icon -->
         <ImageView
             android:id="@+id/settingsIcon"

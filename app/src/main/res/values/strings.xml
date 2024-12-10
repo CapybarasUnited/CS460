@@ -14,6 +14,8 @@
     <string name="checklist">Checklist</string>
     <string name="type">Type:</string>
     <string name="standard">Standard</string>
+    <string name="toggle_delete">Toggle Delete</string>
+    <string name="menu_toggle_delete_description">Toggles the visibility of delete icons in the list</string>
     <string name="delete">Delete</string>
     <string name="color">Color:</string>
     <string name="name">Name:</string>
