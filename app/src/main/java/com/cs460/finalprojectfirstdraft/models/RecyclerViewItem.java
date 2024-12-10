@@ -23,7 +23,7 @@ public class RecyclerViewItem {
         this.position = position;
     }
     public RecyclerViewItem(Entry entry, int position){
-        this.id = entry.getEntryID();
+        this.id = entry.getEntryId();
         this.isList = false;
         this.isNormalChecklist = false;
         this.text = entry.getEntryContent();

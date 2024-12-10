@@ -89,6 +89,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 binding.textPercentSymbol.setVisibility(View.VISIBLE);
             }
             binding.getRoot().setOnClickListener(v -> itemListener.onItemClicked(item));
+            setBackgroundColor(item);
         }
 
 
