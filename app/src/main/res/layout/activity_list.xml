@@ -19,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Title -->
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
@@ -29,6 +30,17 @@
             android:textStyle="bold"
             android:textColor="@android:color/white" />
 
+        <!-- Toggle Delete Button -->
+        <Button
+            android:id="@+id/bannerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Toggle Delete"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@android:color/white"
+            android:textColor="@color/blue" />
+
+        <!-- Settings Icon -->
         <ImageView
             android:id="@+id/settingsIcon"
             android:layout_width="wrap_content"
@@ -38,6 +50,7 @@
             app:tint="@android:color/white" />
     </LinearLayout>
 
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
@@ -74,7 +87,7 @@
         android:background="@drawable/background_add_list_or_entry"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/fabAdd"
-        app:layout_constraintEnd_toEndOf="@+id/fabAdd"/>
+        app:layout_constraintEnd_toEndOf="@+id/fabAdd" />
 
     <Button
         android:id="@+id/btnAddEntry"
@@ -86,7 +99,7 @@
         app:layout_constraintTop_toTopOf="@+id/addPanel"
         app:layout_constraintBottom_toTopOf="@id/btnAddSublist"
         app:layout_constraintEnd_toEndOf="@+id/addPanel"
-        app:layout_constraintStart_toStartOf="@+id/addPanel"/>
+        app:layout_constraintStart_toStartOf="@+id/addPanel" />
 
     <Button
         android:id="@+id/btnAddSublist"
@@ -98,8 +111,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btnAddEntry"
         app:layout_constraintBottom_toBottomOf="@+id/addPanel"
         app:layout_constraintEnd_toEndOf="@+id/addPanel"
-        app:layout_constraintStart_toStartOf="@+id/addPanel"/>
-
+        app:layout_constraintStart_toStartOf="@+id/addPanel" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -109,7 +121,7 @@
         android:scrollbars="vertical"
         app:layout_constraintTop_toBottomOf="@+id/header"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -118,9 +130,6 @@
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-
-        />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

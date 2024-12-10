@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     private ItemAdapter adapter;
     private ArrayList<UserList> lists;
     private ActivityMainBinding binding;
+
+    private boolean showDeleteIcon = false;
     private FirebaseHelper firebaseHelper;
 
     /**
@@ -86,7 +88,18 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
                 finish();
             }
         });
+
+        binding.bannerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDeleteIcon = !showDeleteIcon; // Toggle visibility
+                if (adapter != null) {
+                    adapter.setShowDeleteIcon(showDeleteIcon); // Update the adapter
+                }
+            }
+        });
     }
+
 
     private void loading(Boolean isLoading){
         if(isLoading){
@@ -103,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
     @Override
     public void onItemClicked(RecyclerViewItem item) {
         Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-        intent.putExtra("LIST_ID", item.listID);
+        intent.putExtra("LIST_ID", item.id);
         startActivity(intent);
         finish();
     }

@@ -257,7 +257,8 @@ public class FirebaseHelper {
                         items.add(new Entry(
                                 (String) ds.get(Constants.KEY_ENTRY_ID),
                                 (String) ds.get(Constants.KEY_PARENT_LIST_ID),
-                                (String) ds.get(Constants.KEY_ENTRY_CONTENT)));
+                                (String) ds.get(Constants.KEY_ENTRY_CONTENT),
+                                false));
 
                     }
                 });
@@ -350,7 +351,7 @@ public class FirebaseHelper {
 
                         //generate a new document id for entry
                         DocumentReference newEntryRef = db.collection(Constants.KEY_COLLECTION_ENTRIES).document();
-                        String documentId= newEntryRef.getId();
+                        String documentId = newEntryRef.getId();
 
                         //set the entry id
                         entry.setEntryId(documentId);
