@@ -35,4 +35,5 @@ public class Constants {
     public static final String KEY_ENTRY_ID = "entryId";
     public static final String KEY_ENTRY_CONTENT = "entryContent";
 
+    public static final String KEY_ENTRY_IS_CHECKED = "isChecked";
 }

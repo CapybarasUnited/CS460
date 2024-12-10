@@ -12,7 +12,7 @@ import java.util.HashMap;
  */
 public class UserList extends Item{
     private ArrayList<Item> list;
-    private String listID; //parentListId;
+    private String listId;
     private String parentListId;
     private String listName;
     private String color;
@@ -23,19 +23,28 @@ public class UserList extends Item{
 
     /**
      * Constructor
-     * @param listID This lists ID
+     * @param listId This lists ID
      * @param parentListId this lists parent list ID
      * @param listName this lists name
      * @param color this lists color
      */
-    public UserList(String listID, String parentListId, String listName, String color, boolean isChecklist, boolean deleteWhenChecked, String userEmail) {
-        this.listID = listID;
+    public UserList(String listId, String parentListId, String listName, String color, boolean isChecklist, boolean deleteWhenChecked, String userEmail) {
+        this.listId = listId;
         this.parentListId = parentListId;
         this.listName = listName;
         this.color = color;
         this.isChecklist = isChecklist;
         this.deleteWhenChecked = deleteWhenChecked;
         this.userEmail = userEmail;
+    }
+
+    /**
+     *
+     *
+     *
+     */
+    public UserList(){
+
     }
 
     /**
@@ -86,23 +95,9 @@ public class UserList extends Item{
         this.listName = listName;
     }
 
-    /**
-     * Set this lists ID
-     * @return void
-     */
-    public void setListId(String listID) {this.listID = listID;
+    public void setListId(String listID) {this.listId = listID;
     }
-
-    /**
-     * Get this lists ID
-     * @return
-     */
-    public String getListId() {return listID;}
-
-    /**
-     * Get this lists parent list ID
-     * @return
-     */
+    public String getListId() {return listId;}
     public String getParentListId(){return parentListId;}
 
     /**
@@ -135,18 +130,9 @@ public class UserList extends Item{
      */
     public String getUserEmail() { return userEmail; }
 
-    /**
-     * Get is checklist
-     * @return boolean isChecklist
-     */
     public boolean getIsChecklist() {
         return isChecklist;
     }
-
-    /**
-     * Get is delete when checked
-     * @return boolean deleteWhenChecked
-     */
     public boolean getIsDelete() {
         return deleteWhenChecked;
     }
@@ -158,7 +144,7 @@ public class UserList extends Item{
     public HashMap<String, Object> toHashMap(){
         HashMap<String, Object> map = new HashMap<>();
 
-        map.put(Constants.KEY_LIST_ID, listID);
+        map.put(Constants.KEY_LIST_ID, listId);
         map.put(Constants.KEY_PARENT_LIST_ID, parentListId);
         map.put(Constants.KEY_LIST_NAME, listName);
         map.put(Constants.KEY_COLOR, color);
@@ -170,7 +156,7 @@ public class UserList extends Item{
     }
 
     public String toString() {
-        return "User List { listId " + listID +  "Parent list id: " + parentListId + "list name: " + listName +
+        return "User List { listId " + listId +  "Parent list id: " + parentListId + "list name: " + listName +
                 " color "  + color  + " user email: " +  userEmail +  " is checklist: "  + isChecklist +
                 " delete when checked: " + deleteWhenChecked;
 

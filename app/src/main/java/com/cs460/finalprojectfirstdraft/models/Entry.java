@@ -17,13 +17,19 @@ public class Entry extends Item{
      * @param listId This entries parent list ID
      * @param entryContent String content of this entry
      */
-    public Entry(String entryId, String listId, String entryContent) {
-
+    public Entry(String entryId, String listId, String entryContent, Boolean isChecked) {
         this.entryId = entryId;
         this.listId = listId;
         this.entryContent = entryContent;
+        this.isChecked = isChecked;
     }
 
+    /**
+     * No argument constructor to deserialize object
+     */
+    public Entry(){
+
+    }
     /**
      * set value of entry id
      * @param entryId
@@ -32,6 +38,11 @@ public class Entry extends Item{
         this.entryId = entryId;
     }
 
+    public String getEntryId(){ return entryId; }
+
+    public void setListId(String listId){ this.listId = listId; }
+
+    public String getListId(){ return listId; }
     /**
      * Set the value of isChecked
      * @param checked Boolean checked or unchecked
@@ -62,7 +73,7 @@ public class Entry extends Item{
         HashMap<String, Object> map = new HashMap<>();
 
         map.put("entryId", entryId);
-        map.put("entryName", listId);
+        map.put("listId", listId);
         map.put("entryContent", entryContent);
         map.put("isChecked", isChecked);
 
@@ -78,5 +89,7 @@ public class Entry extends Item{
         return entryContent;
     }
 
-
+    public String toString() {
+        return "EntryId: " + entryId + " listId: " + listId + " entryContent: " + entryContent;
+    }
 }

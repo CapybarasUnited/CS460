@@ -2,6 +2,7 @@ package com.cs460.finalprojectfirstdraft.adapter;
 
 //import static androidx.appcompat.graphics.drawable.DrawableContainerCompat.Api21Impl.getResources;
 
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder>{
     private ArrayList<RecyclerViewItem> items;
+
+    private boolean showDeleteIcon = false; // Default state for the delete icon
     private ItemListener itemListener;
     public ItemAdapter(ArrayList<UserList> lists, ArrayList<Entry> entries, ItemListener itemListener){
         this.itemListener = itemListener;
@@ -29,14 +32,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         //create RecyclerViewItems from the UserLists and Entries passed in
         for (int i = 0; i < lists.size();i++){
-            RecyclerViewItem item = new RecyclerViewItem(lists.get(i));
+            RecyclerViewItem item = new RecyclerViewItem(lists.get(i), i);
             items.add(item);
         }
         for (int i = 0; i < entries.size(); i++){
-            RecyclerViewItem item = new RecyclerViewItem(entries.get(i));
+            RecyclerViewItem item = new RecyclerViewItem(entries.get(i), i);
             items.add(item);
         }
     }
+
+    public void setShowDeleteIcon(boolean showDeleteIcon) {
+        this.showDeleteIcon = showDeleteIcon;
+        notifyDataSetChanged(); // Refresh the RecyclerView
+    }
+
 
     @NonNull
     @Override
@@ -63,15 +72,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         public void setItemData(RecyclerViewItem item) {
             binding.itemText.setText(item.text);
-            if (item.isNormalChecklist){
-                binding.textPercent.setText(item.percentChecked);
 
+            // Toggle the visibility of the delete icon
+            binding.deleteIcon.setVisibility(showDeleteIcon ? View.VISIBLE : View.GONE);
+
+            if (!item.isList) {
+                if (item.isChecked) {
+                    binding.itemText.setPaintFlags(binding.itemText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                } else {
+                    binding.itemText.setPaintFlags(binding.itemText.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+            }
+            if (item.isNormalChecklist) {
+                binding.textPercent.setText(item.percentChecked);
                 binding.textPercent.setVisibility(View.VISIBLE);
                 binding.textPercentSymbol.setVisibility(View.VISIBLE);
             }
-            setBackgroundColor(item);
             binding.getRoot().setOnClickListener(v -> itemListener.onItemClicked(item));
         }
+
 
         public void setBackgroundColor(RecyclerViewItem item){
             switch (item.backgroundColor){
