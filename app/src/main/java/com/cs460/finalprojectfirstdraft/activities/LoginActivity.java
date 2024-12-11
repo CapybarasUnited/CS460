@@ -72,8 +72,6 @@ public class LoginActivity extends AppCompatActivity {
             if(++counter >= 5) {
                 binding.cheat.setVisibility(View.VISIBLE);
             }
-            else {
-            }
         });
 
         binding.cheat.setOnClickListener(view -> {

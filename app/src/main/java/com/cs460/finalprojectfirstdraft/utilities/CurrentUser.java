@@ -1,7 +1,11 @@
 package com.cs460.finalprojectfirstdraft.utilities;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 
+import com.cs460.finalprojectfirstdraft.activities.LoginActivity;
 import com.cs460.finalprojectfirstdraft.models.User;
 
 /**
@@ -50,6 +54,18 @@ public class CurrentUser {
      */
     public static void printUserInfo() {
         System.out.println(currentUser.toString());
+    }
+
+    /**
+     * Log out the user by setting currentUser to null and launching the login activity
+     * @param activity The activity that is calling logout, usually passed as "this"
+     */
+    public static void logout(Activity activity) {
+        setCurrentUser(null);
+
+        Intent intent = new Intent(activity.getApplicationContext(), LoginActivity.class);
+        activity.startActivity(intent);
+        activity.finish();
     }
 
     @NonNull
