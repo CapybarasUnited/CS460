@@ -2,6 +2,7 @@ package com.cs460.finalprojectfirstdraft.adapter;
 
 //import static androidx.appcompat.graphics.drawable.DrawableContainerCompat.Api21Impl.getResources;
 
+import android.annotation.SuppressLint;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -86,9 +87,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 }
             }
             if (item.isList && item.isCheckList && !item.deleteWhenChecked) {
-                binding.textPercent.setText(String.format("%d", item.percentChecked));
-                binding.textPercent.setVisibility(View.VISIBLE);
-                binding.textPercentSymbol.setVisibility(View.VISIBLE);
+                FirebaseHelper.calculateListProgress(item.id, new FirebaseHelper.ProgressCallback() {
+                    @SuppressLint("DefaultLocale")
+                    @Override
+                    public void onProgressCalculated(int progress) {
+                        binding.textPercent.setText(String.format("%d", progress));
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("TextProgress", "Failed to Calculate Progress");
+                    }
+                });
+                if (showDeleteIcon){
+                    binding.textPercent.setVisibility(View.GONE);
+                    binding.textPercentSymbol.setVisibility(View.GONE);
+                }else {
+                    binding.textPercent.setVisibility(View.VISIBLE);
+                    binding.textPercentSymbol.setVisibility(View.VISIBLE);
+                }
             }
             binding.getRoot().setOnClickListener(v -> itemListener.onItemClicked(item));
             setBackgroundColor(item);
