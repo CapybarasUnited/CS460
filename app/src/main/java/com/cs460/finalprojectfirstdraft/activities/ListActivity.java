@@ -75,12 +75,10 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             public void onComplete(@NonNull Task<UserList> task) {
                 thisList.setListName(task.getResult().getListName());
                 thisList.setColor(task.getResult().getColor());
+                setHeaderColor(thisList.getColor());
                 thisList.setParentListId(task.getResult().getParentListId());
                 thisList.setIsChecklist(task.getResult().getIsChecklist());
                 thisList.setIsDelete(task.getResult().getIsDelete());
-                if (thisList.getIsDelete()){
-                    binding.settingsIcon.setVisibility(View.GONE);
-                }
                 ready();
 
                 if (thisList.getIsDelete()){
@@ -145,6 +143,35 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         }
 
         updateTitle();
+    }
+
+    public void setHeaderColor(String color) {
+        switch (color) {
+            case "White":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.white));
+                break;
+            case "Red":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.red));
+                break;
+            case "Orange":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.orange));
+                break;
+            case "Yellow":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.yellow));
+                break;
+            case "Green":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.green));
+                break;
+            case "Blue":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.blue));
+                break;
+            case "Purple":
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.purple));
+                break;
+            default:
+                binding.header.setBackgroundColor(binding.header.getContext().getResources().getColor(R.color.lightgray));
+
+        }
     }
 
     private void setListeners() {
@@ -254,6 +281,8 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
         if (thisList.getIsChecklist() && !thisList.getIsDelete()) {
             popupMenu.getMenu().findItem(R.id.unCheckAll).setVisible(true);
+        }else if (thisList.getIsChecklist()){
+            popupMenu.getMenu().findItem(R.id.toggleDelete).setVisible(false);
         }
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {

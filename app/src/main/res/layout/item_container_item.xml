@@ -7,20 +7,24 @@
 
     <TextView
         android:id="@+id/itemText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_margin="8dp"
         android:textSize="30sp"
         android:textStyle="bold"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textPercent"/>
 
     <TextView
         android:id="@+id/textPercent"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:text="100"
         android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -49,8 +53,9 @@
         android:text="@string/percent"
         android:textSize="30sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         android:visibility="gone"
+        android:textColor="@color/black"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
