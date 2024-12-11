@@ -34,4 +34,6 @@
     <string name="percent">%</string>
     <string name="unchecks_all_entries">Unchecks all Entries</string>
     <string name="uncheck_all">Uncheck All</string>
+    <string name="home">Home</string>
+    <string name="sample">My List</string>
 </resources>

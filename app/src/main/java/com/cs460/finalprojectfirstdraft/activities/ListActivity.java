@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,11 +26,9 @@ import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ListActivity extends AppCompatActivity implements ItemListener {
@@ -65,6 +65,8 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         addingEntries = false;
         addPanelVisible = false;
         unchecking = false;
+
+
     }
 
     private void getListContext(String listID){
@@ -131,12 +133,18 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         });
     }
 
+    private void updateTitle() {
+        binding.title.setText(thisList.getListName());
+    }
+
     private void ready(){
         tracker++;
         if (tracker >= 2){
             binding.progressBar.setVisibility(View.GONE);
             binding.recyclerView.setVisibility(View.VISIBLE);
         }
+
+        updateTitle();
     }
 
     private void setListeners() {
@@ -188,23 +196,47 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         });
 
         // Add settings icon click listener
-        binding.settingsIcon.setOnClickListener(view -> showSettingsMenu(view));
+        binding.settingsIcon.setOnClickListener(this::showSettingsMenu);
 
-        // Handle "Enter" key in the entry text field
-        binding.editTextAddEntry.setOnKeyListener((view, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                if (showDeleteIcon){
-                    toggleDeleteOption();
+        //User editor action instead of key action, allows for the keyboard to persist after
+        //the enter key press and actually allows the keyboard enter key to work.
+        binding.editTextAddEntry.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    if (showDeleteIcon){
+                        toggleDeleteOption();
+                    }
+                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
+                    entries.add(entry);
+                    adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                    binding.recyclerView.setAdapter(adapter);
+                    binding.editTextAddEntry.setText(null);
+                    showToast("Entry Added");
+                    return true; // Consume the event and keep the keyboard open
                 }
-                Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
-                entries.add(entry);
-                adapter = new ItemAdapter(lists, entries, ListActivity.this);
-                binding.recyclerView.setAdapter(adapter);
-                binding.editTextAddEntry.setText(null);
-                showToast("Entry Added");
-                return true;
+                return false; // Allow default behavior if not handled
             }
-            return false;
+        });
+
+        //set up the back button to open this screen with the parent list instead
+        binding.backIcon.setOnClickListener(view -> {
+            Intent intent;
+            if (thisList.getParentListId() != null){
+                intent = new Intent(getApplicationContext(), ListActivity.class);
+                intent.putExtra("LIST_ID", thisList.getParentListId());
+            }else{
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+            }
+            startActivity(intent);
+            finish();
+        });
+
+        //set up home button to take you to the home screen
+        binding.homeIcon.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
         });
 
     }

@@ -39,7 +39,7 @@
         android:id="@+id/imgDelete"
         android:layout_width="39dp"
         android:layout_height="match_parent"
-        android:src="@drawable/delete"
+        android:src="@drawable/ic_delete"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

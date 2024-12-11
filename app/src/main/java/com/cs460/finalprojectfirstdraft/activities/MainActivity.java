@@ -51,10 +51,6 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         firebaseHelper = new FirebaseHelper();
         setContentView(binding.getRoot());
-
-        String newTitle = "Welcome " + CurrentUser.getCurrentUser().getFirstName() + " " + CurrentUser.getCurrentUser().getLastName() + "!";
-        binding.title.setText(newTitle);
-
         getLists();
         setListeners();
     }

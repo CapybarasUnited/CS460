@@ -19,14 +19,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Back Icon -->
+        <ImageView
+            android:id="@+id/backIcon"
+            android:layout_marginEnd="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/back"
+            android:layout_gravity="center"
+            app:tint="@android:color/white"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            />
+
+        <!-- Home Icon -->
+        <ImageView
+            android:id="@+id/homeIcon"
+            android:layout_marginEnd="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_home"
+            android:contentDescription="@string/home"
+            android:layout_gravity="center"
+            app:tint="@android:color/white"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            />
+
         <!-- Title -->
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="My List"
-            android:textSize="18sp"
+            android:text="@string/sample"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@android:color/white" />
 
@@ -37,7 +65,13 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_settings"
             android:contentDescription="@string/settings"
-            app:tint="@android:color/white" />
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="5dp"
+            app:tint="@android:color/white"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            />
     </LinearLayout>
 
     <!-- Floating Action Button -->
@@ -62,6 +96,7 @@
         android:textColor="@color/black"
         android:textColorHint="@color/hintText"
         android:visibility="gone"
+        android:singleLine="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/fabAdd" />
