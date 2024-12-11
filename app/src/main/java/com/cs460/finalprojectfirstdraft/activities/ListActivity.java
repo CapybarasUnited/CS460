@@ -24,6 +24,7 @@ import com.cs460.finalprojectfirstdraft.utilities.CurrentUser;
 import com.cs460.finalprojectfirstdraft.utilities.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,13 +36,11 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
     private ActivityListBinding binding;
     private boolean showDeleteIcon = false; // Tracks the visibility of the delete icon
 
-    private FirebaseHelper firebaseHelper;
     private Bundle extras;
     private String listID;
     private UserList thisList;
-    private boolean addingEntries;
-    private boolean addPanelVisible;
-    private int tracker;
+    private boolean addingEntries, addPanelVisible, unchecking;
+    private int tracker, numChecked;
 
     private ItemAdapter adapter;
     private ArrayList<UserList> lists;
@@ -56,6 +55,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         listID = extras.getString("LIST_ID");
         tracker = 0;
         thisList = new UserList();
+        numChecked = 0;
         getListContext(listID);
 
         getListsAndEntries();
@@ -64,6 +64,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         Log.d("Debug", "list ID in List Activity: " + listID);
         addingEntries = false;
         addPanelVisible = false;
+        unchecking = false;
     }
 
     private void getListContext(String listID){
@@ -101,9 +102,28 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                     @Override
                     public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
                             entries = task.getResult();
+
+                            for (int i = 0; i < entries.size(); i++){
+                                if (entries.get(i).getChecked()){
+                                    numChecked++;
+                                    if (unchecking){
+                                        numChecked = 0;
+                                        entries.get(i).setChecked(false);
+                                        Map<String, Object> changes = new HashMap<>();
+                                        changes.put("isChecked", false);
+                                        FirebaseHelper.updateEntry(listID, entries.get(i).getEntryId(), changes, new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {}
+                                        });
+                                    }
+                                }
+                            }
+                            if (unchecking) {unchecking = false;}
                             adapter = new ItemAdapter(lists, entries, ListActivity.this);
                             binding.recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
+                            if (showDeleteIcon){adapter.setShowDeleteIcon(true);}
                             binding.recyclerView.setAdapter(adapter);
+
                             ready();
                     }
                 });
@@ -200,13 +220,18 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         PopupMenu popupMenu = new PopupMenu(this, view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
+        if (thisList.getIsChecklist() && !thisList.getIsDelete()) {
+            popupMenu.getMenu().findItem(R.id.unCheckAll).setVisible(true);
+        }
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.toggleDelete) {
                         toggleDeleteOption();
                         return true;
                     }else {
-                        return false;
+                        unchecking = true;
+                        getListsAndEntries();
+                        return true;
                     }
                 });
         binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {

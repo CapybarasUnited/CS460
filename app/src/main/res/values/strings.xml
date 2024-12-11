@@ -32,4 +32,6 @@
     <string name="no_lists_created_yet_nadd_a_list_with_the_blue_button">No lists created yet\nAdd a list with the blue + button</string>
     <string name="item_text">Item Text</string>
     <string name="percent">%</string>
+    <string name="unchecks_all_entries">Unchecks all Entries</string>
+    <string name="uncheck_all">Uncheck All</string>
 </resources>
