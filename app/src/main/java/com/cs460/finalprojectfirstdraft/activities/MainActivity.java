@@ -103,16 +103,6 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         });
 
         binding.settingsIcon.setOnClickListener(view -> showSettingsMenu(view));
-
-        binding.bannerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDeleteIcon = !showDeleteIcon; // Toggle visibility
-                if (adapter != null) {
-                    adapter.setShowDeleteIcon(showDeleteIcon); // Update the adapter
-                }
-            }
-        });
     }
 
     private void toggleDeleteOption() {
@@ -120,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         if (adapter != null) {
             adapter.setShowDeleteIcon(showDeleteIcon);
         }
+    }
+
+    private void logout() {
+        CurrentUser.setCurrentUser(null);
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     /**
@@ -135,6 +133,14 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == R.id.toggleDelete) {
                 toggleDeleteOption();
+                return true;
+            }
+            return false; // Default case for other menu items
+        });
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.logOut) {
+                logout();
                 return true;
             }
             return false; // Default case for other menu items

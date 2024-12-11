@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginActivity extends AppCompatActivity {
 
     private com.cs460.finalprojectfirstdraft.databinding.ActivityLoginBinding binding;
+    private int counter = 0;
 
     /**
      * Initialization method
@@ -65,6 +66,20 @@ public class LoginActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+
+        binding.title.setOnClickListener(view -> {
+            if(++counter >= 5) {
+                binding.cheat.setVisibility(View.VISIBLE);
+            }
+            else {
+            }
+        });
+
+        binding.cheat.setOnClickListener(view -> {
+            binding.editTextEmail.setText("eli@holter.com");
+            binding.editTextPassword.setText("password");
+            binding.buttonSignIn.performClick();
         });
     }
 

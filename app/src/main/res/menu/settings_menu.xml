@@ -5,6 +5,11 @@
         android:title="@string/toggle_delete"
         android:contentDescription="@string/menu_toggle_delete_description" />
     <item
+        android:id="@+id/logOut"
+        android:title="@string/log_out"
+        android:contentDescription="@string/log_out"
+        />
+    <item
         android:id="@+id/unCheckAll"
         android:title="@string/uncheck_all"
         android:contentDescription="@string/unchecks_all_entries"

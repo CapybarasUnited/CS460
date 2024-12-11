@@ -78,6 +78,7 @@
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:singleLine="true"
                 android:textSize="18sp"/>
         </LinearLayout>
 

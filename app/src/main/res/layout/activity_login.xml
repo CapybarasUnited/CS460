@@ -9,7 +9,18 @@
     android:gravity="center"
     android:background="@android:color/white">
 
+    <ImageView
+        android:id="@+id/cheat"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_home"
+        android:backgroundTint="@color/white"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        />
+
     <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="42sp"

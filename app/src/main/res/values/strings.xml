@@ -36,4 +36,5 @@
     <string name="uncheck_all">Uncheck All</string>
     <string name="home">Home</string>
     <string name="sample">My List</string>
+    <string name="log_out">Log Out</string>
 </resources>
