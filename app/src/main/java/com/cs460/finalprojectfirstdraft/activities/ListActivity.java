@@ -295,6 +295,15 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                         return true;
                     }
                 });
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.logOut) {
+                CurrentUser.logout(this);
+                return true;
+            }
+            return false; // Default case for other menu items
+        });
+
         binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {

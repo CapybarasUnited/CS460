@@ -1,5 +1,7 @@
 package com.cs460.finalprojectfirstdraft.activities;
 
+import static com.cs460.finalprojectfirstdraft.utilities.CurrentUser.logout;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -112,13 +114,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
         }
     }
 
-    private void logout() {
-        CurrentUser.setCurrentUser(null);
 
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
     /**
      * Shows a popup menu when the settings icon is clicked.
@@ -140,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == R.id.logOut) {
-                logout();
+                logout(this);
                 return true;
             }
             return false; // Default case for other menu items
