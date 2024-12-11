@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuInflater;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -105,7 +107,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
     }
 
     private void setListeners() {
-        // Existing Floating Action Button functionality
+        // Floating Action Button
         binding.fabAdd.setOnClickListener(view -> {
             if (addingEntries) {
                 addingEntries = false;
@@ -129,14 +131,8 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             }
         });
 
-        // Listener for the banner button to toggle delete icon
-        binding.bannerButton.setOnClickListener(view -> {
-            showDeleteIcon = !showDeleteIcon; // Toggle the visibility state
-            if (adapter != null) {
-                adapter.setShowDeleteIcon(showDeleteIcon); // Update the adapter
-            }
-        });
 
+        // Add entry
         binding.btnAddEntry.setOnClickListener(view -> {
             addingEntries = true;
             addPanelVisible = false;
@@ -147,6 +143,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             binding.fabAdd.setImageDrawable(getDrawable(R.drawable.ic_check));
         });
 
+        // Add sublist
         binding.btnAddSublist.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), NewListActivity.class);
             intent.putExtra("PARENT_LIST_ID", listID);
@@ -154,6 +151,38 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             finish();
         });
 
+        // Add settings icon click listener
+        binding.settingsIcon.setOnClickListener(view -> showSettingsMenu(view));
+
+        // Handle "Enter" key in the entry text field
+        binding.editTextAddEntry.setOnKeyListener((view, i, keyEvent) -> {
+            if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
+                entries.add(entry);
+                adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                binding.recyclerView.setAdapter(adapter);
+                binding.editTextAddEntry.setText(null);
+                showToast("Entry Added");
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Shows a popup menu when the settings icon is clicked.
+     *
+     * @param view The view to attach the popup menu to.
+     */
+    private void showSettingsMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.toggleDelete) {
+                toggleDeleteOption();
+                return true;
         binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -182,7 +211,18 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                     return false;
                 }
             }
+            return false; // Default case for other menu items
         });
+
+        popupMenu.show();
+    }
+
+
+    private void toggleDeleteOption() {
+        showDeleteIcon = !showDeleteIcon;
+        if (adapter != null) {
+            adapter.setShowDeleteIcon(showDeleteIcon);
+        }
     }
 
     private void showToast(String message) {
