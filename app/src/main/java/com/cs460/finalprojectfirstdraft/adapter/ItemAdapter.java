@@ -98,9 +98,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         Log.e("TextProgress", "Failed to Calculate Progress");
                     }
                 });
-
-                binding.textPercent.setVisibility(View.VISIBLE);
-                binding.textPercentSymbol.setVisibility(View.VISIBLE);
+                if (showDeleteIcon){
+                    binding.textPercent.setVisibility(View.GONE);
+                    binding.textPercentSymbol.setVisibility(View.GONE);
+                }else {
+                    binding.textPercent.setVisibility(View.VISIBLE);
+                    binding.textPercentSymbol.setVisibility(View.VISIBLE);
+                }
             }
             binding.getRoot().setOnClickListener(v -> itemListener.onItemClicked(item));
             setBackgroundColor(item);

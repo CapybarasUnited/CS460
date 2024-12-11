@@ -41,6 +41,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
     private UserList thisList;
     private boolean addingEntries;
     private boolean addPanelVisible;
+    private int tracker;
 
     private ItemAdapter adapter;
     private ArrayList<UserList> lists;
@@ -53,6 +54,7 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         setContentView(binding.getRoot());
         extras = getIntent().getExtras();
         listID = extras.getString("LIST_ID");
+        tracker = 0;
         thisList = new UserList();
         getListContext(listID);
 
@@ -73,11 +75,15 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                 thisList.setParentListId(task.getResult().getParentListId());
                 thisList.setIsChecklist(task.getResult().getIsChecklist());
                 thisList.setIsDelete(task.getResult().getIsDelete());
+                if (thisList.getIsDelete()){
+                    binding.settingsIcon.setVisibility(View.GONE);
+                }
+                ready();
 
                 if (thisList.getIsDelete()){
                     Log.d("Debug", thisList.getListName() + " is delete");
                 }else{
-                    Log.d("Debug", thisList.getListName() + " is delete");
+                    Log.d("Debug", thisList.getListName() + " is not delete");
                 }
             }
         });
@@ -98,17 +104,27 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                             adapter = new ItemAdapter(lists, entries, ListActivity.this);
                             binding.recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
                             binding.recyclerView.setAdapter(adapter);
+                            ready();
                     }
                 });
             }
         });
-        binding.progressBar.setVisibility(View.GONE);
-        binding.recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void ready(){
+        tracker++;
+        if (tracker >= 2){
+            binding.progressBar.setVisibility(View.GONE);
+            binding.recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setListeners() {
         // Floating Action Button
         binding.fabAdd.setOnClickListener(view -> {
+            if (showDeleteIcon){
+                toggleDeleteOption();
+            }
             if (addingEntries) {
                 addingEntries = false;
                 binding.editTextAddEntry.setText(null);
@@ -157,6 +173,9 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         // Handle "Enter" key in the entry text field
         binding.editTextAddEntry.setOnKeyListener((view, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                if (showDeleteIcon){
+                    toggleDeleteOption();
+                }
                 Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
                 entries.add(entry);
                 adapter = new ItemAdapter(lists, entries, ListActivity.this);
@@ -167,7 +186,10 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             }
             return false;
         });
+
     }
+
+
 
     /**
      * Shows a popup menu when the settings icon is clicked.
@@ -180,9 +202,13 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         inflater.inflate(R.menu.settings_menu, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
-            if (menuItem.getItemId() == R.id.toggleDelete) {
-                toggleDeleteOption();
-                return true;
+                    if (menuItem.getItemId() == R.id.toggleDelete) {
+                        toggleDeleteOption();
+                        return true;
+                    }else {
+                        return false;
+                    }
+                });
         binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -191,6 +217,9 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                     FirebaseHelper.addEntry(entry, listID, task -> {
                         if (task.isSuccessful()) {
                             showToast("Entry Added");
+                            if (showDeleteIcon){
+                                toggleDeleteOption();
+                            }
                         } else {
                             showToast("Failed to add entry");
                         }
@@ -211,7 +240,6 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                     return false;
                 }
             }
-            return false; // Default case for other menu items
         });
 
         popupMenu.show();
@@ -220,6 +248,12 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
 
     private void toggleDeleteOption() {
         showDeleteIcon = !showDeleteIcon;
+        if (showDeleteIcon){
+            Log.d("Debug", "delete icon shown");
+
+        }else {
+            Log.d("Debug", "delete icon not shown");
+        }
         if (adapter != null) {
             adapter.setShowDeleteIcon(showDeleteIcon);
         }
@@ -246,12 +280,14 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
         if (!recyclerViewItem.isList) {
             Log.d("Debug","Is List");
             if(showDeleteIcon || thisList.getIsDelete()){
-                Log.d("Debug","Is Delete");
 
                 FirebaseHelper.deleteEntry(listID, recyclerViewItem.id, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         getListsAndEntries();
+                        if (adapter.getItemCount() == 0){
+                            toggleDeleteOption();
+                        }
                     }
                 });
             }else if(thisList.getIsChecklist()){
