@@ -126,15 +126,14 @@ public class FirebaseHelper {
 
     /**
      *Deletes a list from the database
-     * @param documentId: a unique id of the list document to delete
+     * @param listId: a unique id of the list document to delete
      * @param listener: A listener to handle success or failure after operation completes
      */
-    public static void deleteList(String documentId, OnCompleteListener<Void> listener){
-        //use document id to find specific list
-        db.collection(Constants.KEY_COLLECTION_LISTS)
-                .document(documentId) //point to a specific list document by its Id
-                .collection(Constants.KEY_COLLECTION_ENTRIES) //access the entries subcollection
-                .get()//retrieve all entries in the subcollection
+    public static void deleteList(String listId, OnCompleteListener<Void> listener) {
+        //use document id to find specific entries
+        db.collection(Constants.KEY_COLLECTION_ENTRIES)
+                .whereEqualTo("listId", listId) //filter by list id
+                .get()//retrieve all entries in the collection
                 .addOnCompleteListener(entriesTask -> { //listener to hamdle result of the entries query
                     if (entriesTask.isSuccessful()) {
                         //loop through all entries in the subcollection and delete each one
@@ -144,25 +143,32 @@ public class FirebaseHelper {
 
                         //after deleting entries, delete any sublists
                         db.collection(Constants.KEY_COLLECTION_LISTS)
-                                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, documentId)//find sublists that have the current list as their parent
+                                .whereEqualTo(Constants.KEY_PARENT_LIST_ID, listId)//find sublists that have the current list as their parent
                                 .get()//retrieve all sublists
-                                .addOnCompleteListener(sublistsTask -> { //listener to hamdle result of the entries query
+                                .addOnCompleteListener(sublistsTask -> { //listener to hamdle result of the sublist query
                                     if (sublistsTask.isSuccessful()) { //if query is successful
                                         //loop through all sublists and delete each one
                                         for (DocumentSnapshot sublist : sublistsTask.getResult()) {
-                                            sublist.getReference().delete();
+                                            //recursively delete each sublist
+                                            deleteList(sublist.getId(), task -> {
+                                                if (!task.isSuccessful()) {
+                                                    listener.onComplete(task);
+                                                    return;
+                                                }
+                                            });
                                         }
-                                        //delete main list
-                                        db.collection(Constants.KEY_COLLECTION_LISTS)//reference to main list
-                                                .document(documentId) //reference to main list
-                                                .delete() //delete main document
+                                        //delete list
+                                        db.collection(Constants.KEY_COLLECTION_LISTS)//reference to list collection
+                                                .document(listId) //reference to list
+                                                .delete() //delete document
                                                 .addOnCompleteListener(listener); //notify listener once complete
                                     } else {
-                                        //if deleting sublist fails createTaskCompletionSource
+
                                         listener.onComplete(Tasks.forException(sublistsTask.getException())); //notify of failed operation
                                     }
                                 });
-                    } else {
+
+                        } else {
                         //if deleting entries fails createTaskCompletionSource
                         listener.onComplete(Tasks.forException(entriesTask.getException())); //notify of failed operation
                     }
