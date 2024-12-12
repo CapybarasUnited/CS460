@@ -231,15 +231,28 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
-                    if (showDeleteIcon){
-                        toggleDeleteOption();
-                    }
                     Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
-                    entries.add(entry);
-                    adapter = new ItemAdapter(lists, entries, ListActivity.this);
-                    binding.recyclerView.setAdapter(adapter);
-                    binding.editTextAddEntry.setText(null);
-                    showToast("Entry Added");
+                    FirebaseHelper.addEntry(entry, listID, task -> {
+                        if (task.isSuccessful()) {
+                            showToast("Entry Added");
+                            if (showDeleteIcon){
+                                toggleDeleteOption();
+                            }
+                        } else {
+                            showToast("Failed to add entry");
+                        }
+                    });
+                    entries = new ArrayList<>();
+                    FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
+                            entries = task.getResult();
+                            entries.add(entry);
+                            adapter = new ItemAdapter(lists, entries, ListActivity.this);
+                            binding.recyclerView.setAdapter(adapter);
+                            binding.editTextAddEntry.setText(null);
+                        }
+                    });
                     return true; // Consume the event and keep the keyboard open
                 }
                 return false; // Allow default behavior if not handled
@@ -289,53 +302,18 @@ public class ListActivity extends AppCompatActivity implements ItemListener {
                     if (menuItem.getItemId() == R.id.toggleDelete) {
                         toggleDeleteOption();
                         return true;
-                    }else {
+                    }
+                    else if (menuItem.getItemId() == R.id.unCheckAll){
                         unchecking = true;
                         getListsAndEntries();
                         return true;
                     }
+                    else if (menuItem.getItemId() == R.id.logOut) {
+                        CurrentUser.logout(this);
+                        return true;
+                    }
+                    return false; // Default case for other menu items
                 });
-
-        popupMenu.setOnMenuItemClickListener(menuItem -> {
-            if (menuItem.getItemId() == R.id.logOut) {
-                CurrentUser.logout(this);
-                return true;
-            }
-            return false; // Default case for other menu items
-        });
-
-        binding.editTextAddEntry.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
-                    Entry entry = new Entry(null, listID, binding.editTextAddEntry.getText().toString(), false);
-                    FirebaseHelper.addEntry(entry, listID, task -> {
-                        if (task.isSuccessful()) {
-                            showToast("Entry Added");
-                            if (showDeleteIcon){
-                                toggleDeleteOption();
-                            }
-                        } else {
-                            showToast("Failed to add entry");
-                        }
-                    });
-                    entries = new ArrayList<>();
-                    FirebaseHelper.retrieveEntries(listID, new OnCompleteListener<ArrayList<Entry>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<ArrayList<Entry>> task) {
-                            entries = task.getResult();
-                            entries.add(entry);
-                            adapter = new ItemAdapter(lists, entries, ListActivity.this);
-                            binding.recyclerView.setAdapter(adapter);
-                            binding.editTextAddEntry.setText(null);
-                        }
-                    });
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
 
         popupMenu.show();
     }
