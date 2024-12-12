@@ -131,11 +131,7 @@ public class MainActivity extends AppCompatActivity implements ItemListener {
                 toggleDeleteOption();
                 return true;
             }
-            return false; // Default case for other menu items
-        });
-
-        popupMenu.setOnMenuItemClickListener(menuItem -> {
-            if (menuItem.getItemId() == R.id.logOut) {
+            else if (menuItem.getItemId() == R.id.logOut) {
                 logout(this);
                 return true;
             }
